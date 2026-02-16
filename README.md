@@ -12,7 +12,7 @@
 [![Chrome MV3](https://img.shields.io/badge/Chrome-MV3-blue.svg)]()
 [![Tests](https://img.shields.io/badge/Tests-25%20passed-brightgreen.svg)]()
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue.svg)]()
-[![Twitter](https://img.shields.io/badge/Twitter-@bidaoofficial-1DA1F2?logo=twitter&logoColor=white)](https://twitter.com/bidaoofficial)
+[![Twitter](https://img.shields.io/badge/Twitter-@bidaoofficial-1DA1F2?logo=x&logoColor=white)](https://x.com/bidaoofficial)
 
 [Install](#install) | [How It Works](#how-it-works) | [中文说明](#chinese)
 
@@ -172,6 +172,26 @@ Click the Aegis shield icon:
 
 ---
 
+## Blocked but Need to Proceed? (FAQ)
+
+**Q: Aegis blocked my input, but I actually need to enter this data. What do I do?**
+
+You have three options:
+
+1. **Whitelist the site** — Click the shield icon → **Whitelist** tab → add the domain you trust. That site will no longer be scanned.
+2. **Lower the protection level** — Click the shield icon → change **Protection Level** from High to Medium or Low. Lower levels only block high-confidence matches.
+3. **Temporarily disable** — Click the shield icon → turn off the **Protection Shield** toggle. Remember to turn it back on when you're done.
+
+**Q: I need to enter my credit card number on a payment page. Will Aegis block it?**
+
+Yes, by default Aegis will flag credit card numbers on any site. For legitimate payment pages: add the payment site to your **Whitelist**, or temporarily toggle off protection. Turn it back on after you're done.
+
+**Q: Will Aegis support more languages?**
+
+Yes! Multi-language UI support is planned for a future update.
+
+---
+
 ## Privacy & Security
 
 - **All scanning happens locally.** Zero data sent to any server. Ever.
@@ -235,13 +255,13 @@ Contributions welcome! Areas where help is needed:
 
 ## Support the Project | 支持项目
 
-If Aegis OmniGuard saved your keys, consider buying the dev a coffee:
+This is a passion project built with love, not profit. If Aegis OmniGuard has protected your data and you'd like to support continued development — more interception rules, deeper security features, and a safer AI experience for everyone — any contribution is appreciated.
 
-如果 Aegis OmniGuard 保护了你的密钥，可以请开发者喝杯咖啡：
+这是一个为爱发电的项目。如果 Aegis OmniGuard 保护了你的数据，也欢迎捐赠支持后续开发——更多拦截规则、更深层的安全防护功能、为大家打造更安全的 AI 使用环境。每一份支持都是继续前进的动力。
 
 **ETH/EVM**: `0xf1c1ef080e6aE6AABA999ba6E5D1545cD5Efab41`
 
-**Twitter/X**: [@bidaoofficial](https://twitter.com/bidaoofficial)
+**Twitter/X**: [@bidaoofficial](https://x.com/bidaoofficial)
 
 ---
 
@@ -252,6 +272,59 @@ If Aegis OmniGuard saved your keys, consider buying the dev a coffee:
 # 中文说明
 
 </div>
+
+## 界面预览与使用指南
+
+### 产品总览
+
+![产品总览](screenshots/screenshot_1_hero.jpg)
+
+> **三零理念：零上云（所有扫描在本地完成）、零费用（完全免费开源）、零配置（安装即用）。**
+> 支持检测：信用卡号（Luhn 校验）、API 密钥（5 大平台）、加密货币助记词（BIP-39）、私钥（熵值检测）、.env 配置文件、身份证号（校验码验证）。
+
+---
+
+### 拦截效果演示
+
+![拦截演示](screenshots/screenshot_2_interception.jpg)
+
+> **实际拦截效果：** 当你在 ChatGPT 中输入包含信用卡号和 API Key 的内容时，Aegis 会自动拦截并脱敏。
+>
+> 图片说明：
+> - **上方红色删除线**：你输入的原始内容（包含真实信用卡号和 API Key）
+> - **左下角拦截通知**：显示被拦截的类型（API Key / 信用卡号）、置信度（98%）、以及脱敏后的结果
+> - **右侧绿色框**：AI 实际收到的内容——信用卡号已变成 `**** **** **** 1111`，API Key 已变成 `sk-pr**********789`
+>
+> **你的敏感数据从未离开浏览器。AI 只看到脱敏后的安全版本。**
+
+---
+
+### 控制面板与工作流程
+
+![控制面板](screenshots/screenshot_3_dashboard.jpg)
+
+> **左侧 - 插件控制面板（点击工具栏盾牌图标打开）：**
+>
+> | 界面元素 | 中文说明 |
+> |---------|---------|
+> | Protection Shield `ON` | 防护总开关（绿色 = 已开启） |
+> | Protection Level: Low / **Medium** / High | 防护等级（推荐选 Medium） |
+> | Today's Interceptions | 今日拦截统计 |
+> | Credit Cards: 3 | 已拦截 3 次信用卡号 |
+> | API Keys: 7 | 已拦截 7 次 API 密钥 |
+> | Mnemonics: 1 | 已拦截 1 次助记词 |
+> | .env Secrets: 2 | 已拦截 2 次环境变量密钥 |
+> | View Logs | 查看拦截日志（详细记录每次拦截） |
+> | Whitelist | 白名单管理（添加不需要扫描的信任网站） |
+>
+> **右侧 - 工作流程（5 步自动完成，无需手动操作）：**
+> 1. **You Type / Paste** — 你在任意 AI 聊天界面输入或粘贴文本
+> 2. **Content Script** — 插件捕获键盘、粘贴、点击事件
+> 3. **DLP Engine Scan** — DLP 引擎执行正则预筛 + 算法校验
+> 4. **Decision** — 判定：安全则放行（Pass），敏感则拦截（Block）
+> 5. **Protection** — 自动脱敏 + 弹出提示通知 + 记录日志
+
+---
 
 ## 为什么你现在就需要它
 
@@ -358,6 +431,37 @@ npm run build
 
 ---
 
+## 被拦截了怎么办？(FAQ)
+
+**Q: 插件把我的输入拦截了，但我确实需要输入这个内容怎么办？**
+
+有以下几种方式：
+
+1. **添加白名单** — 点击工具栏盾牌图标 → **Whitelist** 标签 → 添加你信任的网站域名。该网站将不再被扫描。
+2. **降低防护等级** — 点击盾牌图标 → 将 **Protection Level** 从 High 调为 Medium 或 Low。等级越低，只有高置信度的敏感数据才会被拦截。
+3. **临时关闭** — 点击盾牌图标 → 关闭 **Protection Shield** 开关。完成操作后记得重新打开。
+
+**Q: 界面是英文的，各个按钮是什么意思？**
+
+| 英文 | 中文含义 |
+|------|---------|
+| Protection Shield | 防护总开关（ON=开启 / OFF=关闭） |
+| Protection Level: Low / Medium / High | 防护等级：低 / 中 / 高 |
+| Whitelist | 白名单（添加信任的网站，不扫描） |
+| Intercept Log | 拦截日志（查看被拦截的记录） |
+| Add Domain | 添加域名 |
+| Clear Logs | 清空日志 |
+
+**Q: 我就是要填信用卡号付款，怎么办？**
+
+在正规支付页面填写信用卡号时：将该支付网站加入白名单，或者临时关闭防护开关。完成支付后建议重新开启防护。
+
+**Q: 以后会支持中文界面吗？**
+
+会的！多语言支持在后续更新计划中。
+
+---
+
 ## 隐私与安全
 
 - **所有扫描纯本地执行。** 零数据发送到任何服务器。
@@ -384,8 +488,8 @@ npm run build
 
 [Report Bug / 报告问题](../../issues) | [Request Feature / 功能建议](../../issues) | [Security / 安全问题](SECURITY.md)
 
-**Twitter/X**: [@bidaoofficial](https://twitter.com/bidaoofficial)
+**Twitter/X**: [@bidaoofficial](https://x.com/bidaoofficial)
 
-**ETH/EVM Donation**: `0xf1c1ef080e6aE6AABA999ba6E5D1545cD5Efab41`
+**ETH/EVM Donation (为爱发电)**: `0xf1c1ef080e6aE6AABA999ba6E5D1545cD5Efab41`
 
 </div>
