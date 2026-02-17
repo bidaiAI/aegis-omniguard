@@ -10,7 +10,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Chrome MV3](https://img.shields.io/badge/Chrome-MV3-blue.svg)]()
-[![Tests](https://img.shields.io/badge/Tests-25%20passed-brightgreen.svg)]()
+[![Tests](https://img.shields.io/badge/Tests-61%20passed-brightgreen.svg)]()
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue.svg)]()
 [![Twitter](https://img.shields.io/badge/Twitter-@bidaoofficial-1DA1F2?logo=x&logoColor=white)](https://x.com/bidaoofficial)
 
@@ -72,12 +72,45 @@ The numbers are real: 23M+ secrets leaked to public GitHub repos in 2024. 900K+ 
 - **Submit Button Interception**: Catches send buttons across AI platforms
 - **Protection Levels**: Low (0.95) / Medium (0.80) / High (0.60) confidence thresholds
 
-### Web3 Sentinel (Phase 2 - Coming Soon)
+### Multi-Chain Private Key Detection (Phase 2 - v0.2.0)
 
-- Intercept MetaMask `eth_sendTransaction` / `eth_signTypedData_v4`
-- LLM-powered contract analysis (Bring Your Own Key)
-- Anti-prompt-injection: comment stripping before LLM analysis
-- Full-screen risk warning panel
+| Chain | Format | Verification |
+|-------|--------|-------------|
+| Bitcoin | WIF (`5`/`K`/`L` prefix) | Base58Check + SHA-256 double hash |
+| Solana | Base58 keypair/seed | 64-byte keypair / 32-byte seed length validation |
+| Tron | 64-char hex | Shannon entropy analysis (rejects tx hashes) |
+| Ethereum | `0x` + 64 hex | Entropy threshold |
+| BIP-39 Mnemonic (EN) | 12/24 English words | Full 2048-word dictionary check |
+| BIP-39 Mnemonic (CN) | 12/24 Chinese chars | Async lazy-load 2048 Simplified Chinese wordlist |
+
+61 test cases passing, including false-positive prevention for tx hashes, contract addresses, and random Base58 strings.
+
+### Web3 Sentinel (Phase 2 - v0.2.0)
+
+Intercepts wallet interactions **before** MetaMask popup — between your click and the signature:
+
+| Method | Risk | Action |
+|--------|------|--------|
+| `eth_sendTransaction` | Decode contract call | Detect `approve()`, `setApprovalForAll()`, unlimited approvals |
+| `eth_signTypedData_v4` | Permit signature | Detect EIP-2612 Permit (off-chain token drain) |
+| `personal_sign` | Message signing | Warn about phishing potential |
+| `eth_sign` | Raw hash signing | **Block by default** — can sign anything |
+
+**Two-tier analysis:**
+- **Tier 1 (Local)**: Zero-latency pre-screen with 14 known dangerous method selectors + unlimited approval detection
+- **Tier 2 (LLM)**: Optional AI-powered contract audit via your own API key
+
+**BYOK (Bring Your Own Key):**
+- Supports OpenAI (gpt-4o-mini) / Anthropic (claude-haiku-4) / DeepSeek
+- API keys encrypted with AES-256-GCM, never leave the extension
+- All LLM calls routed through Background Service Worker
+
+### i18n — EN / Chinese Toggle (Phase 2 - v0.2.0)
+
+- Zero-dependency React Context i18n system
+- 93 translation keys across all 4 popup pages
+- One-click `EN | 中` toggle in Dashboard header
+- Language preference persisted to settings
 
 ---
 
@@ -149,14 +182,26 @@ You type/paste text in ChatGPT / Claude / Cursor / any website
   |     +-- DOM monitoring, event interception
   |     +-- Native setter override for React/Vue state sync
   |     +-- Shadow DOM toast injection
+  |     +-- Bridge: relay Web3 intercepts to background
+  |
+  +-- Injected Script (Main World)               [NEW v0.2]
+  |     +-- ES6 Proxy hijack window.ethereum.request()
+  |     +-- Promise suspension with 5-min timeout
+  |     +-- Shadow DOM AlertPanel (safe/warning/danger)
   |
   +-- Background Service Worker
   |     +-- DLP Engine: Luhn, BIP-39, entropy, regex
+  |     +-- Multi-chain key detection (BTC/SOL/TRON/ETH)  [NEW v0.2]
+  |     +-- Sentinel Engine: local pre-screen + LLM       [NEW v0.2]
+  |     +-- LLM Proxy: BYOK routing (OpenAI/Anthropic/DeepSeek) [NEW v0.2]
+  |     +-- Key Vault: AES-256-GCM encrypted storage      [NEW v0.2]
   |     +-- Settings management + whitelist
   |     +-- Intercept logging
   |
   +-- Popup UI (React + Tailwind)
         +-- Dashboard / Logs / Whitelist
+        +-- Settings (BYOK provider management)    [NEW v0.2]
+        +-- i18n: EN / 中 toggle (93 keys)         [NEW v0.2]
 ```
 
 ---
@@ -167,8 +212,12 @@ Click the Aegis shield icon:
 
 - **Protection Shield**: Master on/off
 - **Protection Level**: Low / Medium (recommended) / High
+- **Web2 DLP Shield**: Toggle clipboard/paste interception
+- **Web3 Sentinel**: Toggle transaction/signature interception
 - **Whitelist**: Trusted domains where scanning is disabled
 - **Intercept Log**: Review what was blocked
+- **Settings**: Configure LLM provider (OpenAI/Anthropic/DeepSeek) and API keys
+- **EN / 中**: Language toggle (top-right corner)
 
 ---
 
@@ -186,9 +235,13 @@ You have three options:
 
 Yes, by default Aegis will flag credit card numbers on any site. For legitimate payment pages: add the payment site to your **Whitelist**, or temporarily toggle off protection. Turn it back on after you're done.
 
-**Q: Will Aegis support more languages?**
+**Q: How do I switch to Chinese?**
 
-Yes! Multi-language UI support is planned for a future update.
+Click the `EN | 中` toggle in the top-right corner of the popup. All 4 pages switch instantly. Your preference is saved automatically.
+
+**Q: How does the Web3 Sentinel work?**
+
+It works out of the box with Tier 1 local analysis (zero config). For AI-powered deep analysis (Tier 2), go to Settings → choose a provider (OpenAI/Anthropic/DeepSeek) → enter your API key → Save. Keys are encrypted with AES-256-GCM locally.
 
 ---
 
@@ -207,29 +260,32 @@ npm install          # Install dependencies
 npm run dev          # Dev build with hot reload
 npm run build        # Production build
 npx tsc -b           # Type check
-npx tsx test/dlp_engine.test.ts  # Run tests (25 passing)
+npx tsx test/dlp_engine.test.ts  # Run tests (61 passing)
 ```
 
 ### Project Structure
 
 ```
 src/
-  background/      Service Worker (message routing, DLP dispatch)
-  content/         Content Script (DOM monitoring, event interception)
-  engines/         DLP Engine (Luhn, BIP-39, entropy, PII)
-  inject/          Main World scripts (Phase 2: Web3 provider proxy)
-  popup/           Popup UI (Dashboard, Logs, Whitelist)
+  background/      Service Worker (message routing, DLP dispatch, LLM proxy)
+  content/         Content Script (DOM monitoring, event interception, bridge)
+  engines/         DLP Engine, Sentinel Engine, wallet detector, code stripper
+  inject/          Main World: ES6 Proxy hijack window.ethereum
+  popup/           Popup UI (Dashboard, Logs, Whitelist, Settings, i18n)
   overlay/         Shadow DOM host management
   shared/          Types, constants, message protocol, key vault
+  assets/          BIP-39 wordlists (English embedded, Chinese lazy-load)
+test/              61 test cases (DLP + multi-chain + false positive control)
 ```
 
 ---
 
 ## Roadmap
 
-- [x] **Phase 1**: Web2 DLP Shield (local scanning, zero cloud)
-- [ ] **Phase 2**: Web3 Sentinel (MetaMask interception, LLM contract analysis)
-- [ ] **Phase 3**: Enterprise features (team management, advanced rules)
+- [x] **Phase 1 (v0.1.0)**: Web2 DLP Shield (local scanning, zero cloud)
+- [x] **Phase 2 (v0.2.0)**: Web3 Sentinel + Multi-chain detection + BYOK + i18n
+- [ ] **Phase 3**: Cross-chain bridge monitoring, phishing URL database
+- [ ] **Phase 4**: Enterprise features (team management, advanced rules)
 - [ ] VS Code / Cursor extension
 - [ ] Firefox support
 
@@ -378,12 +434,45 @@ This is a passion project built with love, not profit. If Aegis OmniGuard has pr
 - **发送按钮拦截**：跨平台捕获发送按钮点击
 - **防护等级**：低（0.95）/ 中（0.80）/ 高（0.60）置信度阈值
 
-### Web3 哨兵（第二阶段 - 即将推出）
+### 多链私钥检测（第二阶段 - v0.2.0 已发布）
 
-- 拦截 MetaMask `eth_sendTransaction` / `eth_signTypedData_v4`
-- LLM 驱动的合约分析（自带密钥模式）
-- 反提示注入：分析前去除代码注释
-- 全屏风险警告面板
+| 链 | 格式 | 验证方式 |
+|----|------|---------|
+| Bitcoin | WIF (`5`/`K`/`L` 开头) | Base58Check + SHA-256 双重哈希 |
+| Solana | Base58 密钥对/种子 | 64字节/32字节长度验证 |
+| Tron | 64位 hex | Shannon 熵值分析（排除交易哈希误报） |
+| Ethereum | `0x` + 64位 hex | 熵值阈值 |
+| BIP-39 助记词 (英文) | 12/24 英文单词 | 完整 2048 词库校验 |
+| BIP-39 助记词 (中文) | 12/24 汉字 | 异步加载 2048 简体中文词库 |
+
+61 个测试用例全部通过，含交易哈希、合约地址、随机 Base58 字符串的误报防控。
+
+### Web3 哨兵（第二阶段 - v0.2.0 已发布）
+
+在你点击 DApp「确认」按钮之后、MetaMask 弹窗之前，自动拦截并分析：
+
+| 方法 | 风险 | 动作 |
+|------|------|------|
+| `eth_sendTransaction` | 解码合约调用 | 识别 `approve()`、`setApprovalForAll()`、无限授权 |
+| `eth_signTypedData_v4` | Permit 签名 | 检测 EIP-2612 Permit（离线盗币） |
+| `personal_sign` | 消息签名 | 提醒钓鱼风险 |
+| `eth_sign` | 原始哈希签名 | **默认阻止** — 可签署任意数据 |
+
+**两层分析引擎：**
+- **Tier 1（本地）**：零延迟预判，内置 14 种危险方法签名 + 无限授权检测
+- **Tier 2（LLM）**：可选 AI 合约审计，接入你自己的 API Key
+
+**BYOK（自带密钥）：**
+- 支持 OpenAI (gpt-4o-mini) / Anthropic (claude-haiku-4) / DeepSeek
+- API 密钥以 AES-256-GCM 加密存储，永不离开扩展
+- 所有 LLM 调用走后台 Service Worker 代理
+
+### 中英双语切换（第二阶段 - v0.2.0 已发布）
+
+- 零依赖 React Context i18n 系统
+- 93 个翻译字段覆盖全部 4 个页面
+- Dashboard 右上角 `EN | 中` 一键切换
+- 语言偏好持久化保存
 
 ---
 
@@ -426,8 +515,12 @@ npm run build
 
 - **防护开关**：主开关
 - **防护等级**：低 / 中（推荐）/ 高
+- **Web2 数据防泄盾**：开关粘贴板/输入拦截
+- **Web3 哨兵**：开关交易/签名拦截
 - **白名单**：添加不扫描的信任域名
 - **拦截日志**：查看被拦截的内容
+- **设置**：配置 LLM 服务商（OpenAI/Anthropic/DeepSeek）和 API 密钥
+- **EN / 中**：语言切换（右上角）
 
 ---
 
@@ -441,14 +534,19 @@ npm run build
 2. **降低防护等级** — 点击盾牌图标 → 将 **Protection Level** 从 High 调为 Medium 或 Low。等级越低，只有高置信度的敏感数据才会被拦截。
 3. **临时关闭** — 点击盾牌图标 → 关闭 **Protection Shield** 开关。完成操作后记得重新打开。
 
-**Q: 界面是英文的，各个按钮是什么意思？**
+**Q: 界面各按钮是什么意思？**
+
+v0.2.0 已支持中文界面（点右上角 `EN | 中` 切换）。如果使用英文界面：
 
 | 英文 | 中文含义 |
 |------|---------|
 | Protection Shield | 防护总开关（ON=开启 / OFF=关闭） |
 | Protection Level: Low / Medium / High | 防护等级：低 / 中 / 高 |
+| Web2 DLP Shield | Web2 数据防泄盾（粘贴板拦截） |
+| Web3 Sentinel | Web3 哨兵（交易签名拦截） |
 | Whitelist | 白名单（添加信任的网站，不扫描） |
 | Intercept Log | 拦截日志（查看被拦截的记录） |
+| Settings | 设置（LLM 服务商和 API 密钥管理） |
 | Add Domain | 添加域名 |
 | Clear Logs | 清空日志 |
 
@@ -456,9 +554,13 @@ npm run build
 
 在正规支付页面填写信用卡号时：将该支付网站加入白名单，或者临时关闭防护开关。完成支付后建议重新开启防护。
 
-**Q: 以后会支持中文界面吗？**
+**Q: 怎么切换中文界面？**
 
-会的！多语言支持在后续更新计划中。
+v0.2.0 已支持！点击 Popup 右上角的 `EN | 中` 按钮即可一键切换，所有页面立即变为中文。语言偏好会自动保存。
+
+**Q: Web3 哨兵怎么用？需要配置什么吗？**
+
+安装后即可使用基础防护（Tier 1 本地分析）。如果想开启 AI 深度分析（Tier 2），点击「设置」→ 选择服务商（OpenAI/Anthropic/DeepSeek）→ 输入你的 API Key → 保存。密钥以 AES-256-GCM 加密存储在本地。
 
 ---
 
@@ -472,9 +574,10 @@ npm run build
 
 ## 路线图
 
-- [x] **第一阶段**：Web2 数据防泄露盾（本地扫描，零上云）
-- [ ] **第二阶段**：Web3 哨兵（MetaMask 拦截，LLM 合约分析）
-- [ ] **第三阶段**：企业功能（团队管理，高级规则）
+- [x] **第一阶段 (v0.1.0)**：Web2 数据防泄露盾（本地扫描，零上云）
+- [x] **第二阶段 (v0.2.0)**：Web3 哨兵 + 多链私钥检测 + BYOK + 中英双语
+- [ ] **第三阶段**：跨链桥监控、钓鱼 URL 数据库
+- [ ] **第四阶段**：企业功能（团队管理，高级规则）
 - [ ] VS Code / Cursor 插件
 - [ ] Firefox 支持
 
