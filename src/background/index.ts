@@ -99,7 +99,24 @@ async function addLogEntry(entry: Omit<InterceptLogEntry, 'id'>): Promise<void> 
 
 // ===== Message Router =====
 
-chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
+// Messages that should ONLY be sent from the popup (not from content scripts or web pages)
+const POPUP_ONLY_MSGS = new Set([
+  MSG.UPDATE_SETTINGS,
+  MSG.STORE_API_KEY,
+  MSG.DELETE_API_KEY,
+  MSG.VALIDATE_API_KEY,
+  MSG.CLEAR_LOGS,
+]);
+
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  // Security: restrict admin messages to popup only
+  // Popup messages have sender.tab === undefined and come from our extension
+  if (POPUP_ONLY_MSGS.has(message.type)) {
+    if (sender.tab || sender.id !== chrome.runtime.id) {
+      sendResponse({ error: 'Unauthorized: admin messages must come from popup' });
+      return false;
+    }
+  }
   handleMessage(message, sendResponse);
   return true; // async response
 });
@@ -178,9 +195,32 @@ async function handleMessage(
       }
 
       case MSG.UPDATE_SETTINGS: {
-        const newSettings = message.payload as Partial<AegisSettings>;
+        const raw = message.payload as Record<string, unknown>;
         const current = await loadSettings();
-        const updated = { ...current, ...newSettings };
+
+        // Validate each field — reject unknown keys and invalid values
+        const validated: Partial<AegisSettings> = {};
+        if (typeof raw.enabled === 'boolean') validated.enabled = raw.enabled;
+        if (typeof raw.web2DlpEnabled === 'boolean') validated.web2DlpEnabled = raw.web2DlpEnabled;
+        if (typeof raw.web3SentinelEnabled === 'boolean') validated.web3SentinelEnabled = raw.web3SentinelEnabled;
+        if (raw.protectionLevel === 'low' || raw.protectionLevel === 'medium' || raw.protectionLevel === 'high') {
+          validated.protectionLevel = raw.protectionLevel;
+        }
+        if (raw.language === 'en' || raw.language === 'zh') {
+          validated.language = raw.language;
+        }
+        if (raw.llmProvider === 'openai' || raw.llmProvider === 'anthropic' || raw.llmProvider === 'deepseek' || raw.llmProvider === null) {
+          validated.llmProvider = raw.llmProvider;
+        }
+        if (Array.isArray(raw.whitelist)) {
+          // Sanitize whitelist: only allow valid domain patterns, max 100 entries
+          validated.whitelist = (raw.whitelist as unknown[])
+            .filter((item): item is string => typeof item === 'string' && item.length <= 253)
+            .filter((domain) => /^(\*\.)?[a-zA-Z0-9]([a-zA-Z0-9\-]*[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9\-]*[a-zA-Z0-9])?)*$/.test(domain))
+            .slice(0, 100);
+        }
+
+        const updated = { ...current, ...validated };
         await chrome.storage.local.set({ [STORAGE_KEYS.SETTINGS]: updated });
         cachedSettings = updated;
         sendResponse(updated);

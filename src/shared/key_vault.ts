@@ -1,26 +1,54 @@
 /**
  * Key Vault - Secure API key storage
  *
- * CRITICAL SECURITY (Difficulty #6):
- * - API Keys stored ONLY in chrome.storage.local (extension-isolated)
+ * Security hardening (audit F-04/F-05):
+ * - Per-installation random secret (32 bytes) generated on first use
+ * - Per-encryption random salt (16 bytes) stored alongside ciphertext
+ * - PBKDF2 key derivation: extensionId + installSecret + randomSalt
+ * - AES-256-GCM with random 12-byte IV per encryption
  * - Content Scripts have ZERO access to keys
  * - All LLM requests proxied through Background Service Worker
- * - Keys encrypted with AES-GCM via WebCrypto API
- *
- * Supports multiple providers (OpenAI, Anthropic, DeepSeek)
- * Each provider's key is stored under a separate storage key.
  */
 
 import { STORAGE_KEYS } from './constants';
 import type { LLMProvider } from './types';
 
-// Derive an encryption key from extension ID (unique per installation)
-async function getDerivedKey(): Promise<CryptoKey> {
+const INSTALL_SECRET_KEY = 'aegis_install_secret';
+
+/**
+ * Get or create a per-installation random secret (32 bytes).
+ * Generated once on first use, persisted in chrome.storage.local.
+ */
+async function getInstallSecret(): Promise<Uint8Array> {
+  const result = await chrome.storage.local.get(INSTALL_SECRET_KEY);
+  if (result[INSTALL_SECRET_KEY]) {
+    return new Uint8Array(result[INSTALL_SECRET_KEY] as number[]);
+  }
+  // First time: generate random 32-byte secret
+  const secret = crypto.getRandomValues(new Uint8Array(32));
+  await chrome.storage.local.set({ [INSTALL_SECRET_KEY]: Array.from(secret) });
+  return secret;
+}
+
+/**
+ * Derive an AES-256-GCM encryption key using PBKDF2.
+ * Input: extensionId + installSecret (unique per installation)
+ * Salt: random per-encryption (passed in)
+ */
+async function getDerivedKey(salt: Uint8Array): Promise<CryptoKey> {
   const extensionId = chrome.runtime.id;
   const encoder = new TextEncoder();
+  const installSecret = await getInstallSecret();
+
+  // Combine extensionId + installSecret as key material
+  const idBytes = encoder.encode(extensionId);
+  const combined = new Uint8Array(idBytes.length + installSecret.length);
+  combined.set(idBytes, 0);
+  combined.set(installSecret, idBytes.length);
+
   const keyMaterial = await crypto.subtle.importKey(
     'raw',
-    encoder.encode(extensionId),
+    combined,
     'PBKDF2',
     false,
     ['deriveKey']
@@ -29,7 +57,7 @@ async function getDerivedKey(): Promise<CryptoKey> {
   return crypto.subtle.deriveKey(
     {
       name: 'PBKDF2',
-      salt: encoder.encode('aegis-omniguard-vault'),
+      salt: salt.buffer as ArrayBuffer,
       iterations: 100000,
       hash: 'SHA-256',
     },
@@ -52,9 +80,10 @@ function getStorageKeyName(provider?: LLMProvider): string {
  * Store an API key securely (Background only)
  */
 export async function storeApiKey(key: string, provider?: LLMProvider): Promise<void> {
-  const derivedKey = await getDerivedKey();
   const encoder = new TextEncoder();
+  const salt = crypto.getRandomValues(new Uint8Array(16)); // random salt per encryption
   const iv = crypto.getRandomValues(new Uint8Array(12));
+  const derivedKey = await getDerivedKey(salt);
 
   const encrypted = await crypto.subtle.encrypt(
     { name: 'AES-GCM', iv },
@@ -63,6 +92,7 @@ export async function storeApiKey(key: string, provider?: LLMProvider): Promise<
   );
 
   const data = {
+    salt: Array.from(salt),
     iv: Array.from(iv),
     encrypted: Array.from(new Uint8Array(encrypted)),
   };
@@ -77,11 +107,22 @@ export async function storeApiKey(key: string, provider?: LLMProvider): Promise<
 export async function getApiKey(provider?: LLMProvider): Promise<string | null> {
   const storageKey = getStorageKeyName(provider);
   const result = await chrome.storage.local.get(storageKey);
-  const data = result[storageKey] as { iv: number[]; encrypted: number[] } | undefined;
+  const data = result[storageKey] as { salt?: number[]; iv: number[]; encrypted: number[] } | undefined;
 
   if (!data) return null;
 
-  const derivedKey = await getDerivedKey();
+  // Validate structure before decryption
+  if (!Array.isArray(data.iv) || !Array.isArray(data.encrypted) || data.encrypted.length < 16) {
+    console.warn('[Aegis KeyVault] Corrupted encrypted data structure');
+    return null;
+  }
+
+  // Support legacy format (no salt field) — use hardcoded fallback for migration
+  const salt = data.salt
+    ? new Uint8Array(data.salt)
+    : new TextEncoder().encode('aegis-omniguard-vault');
+
+  const derivedKey = await getDerivedKey(salt);
   const iv = new Uint8Array(data.iv);
   const encrypted = new Uint8Array(data.encrypted);
 

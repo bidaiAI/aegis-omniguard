@@ -45,7 +45,24 @@ export function sendToMainWorld(payload: Record<string, unknown>, requestId?: st
     payload,
     requestId: requestId || generateRequestId(),
   };
-  window.postMessage(message, '*');
+  window.postMessage(message, window.location.origin);
+}
+
+// ===== Security: HTML Escape =====
+
+/**
+ * Escape HTML special characters to prevent XSS via innerHTML.
+ * DApp-controlled values (origin, methodLabel, addresses) MUST be escaped.
+ */
+function escapeHtml(str: string): string {
+  const map: Record<string, string> = {
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#x27;',
+  };
+  return str.replace(/[&<>"']/g, (ch) => map[ch]);
 }
 
 // ===== AlertPanel UI =====
@@ -194,10 +211,15 @@ function showAlertPanelAndWait(data: AlertData): Promise<'approve' | 'reject'> {
     const risk = riskMeta[riskLevel] || riskMeta.warning;
     const isDanger = riskLevel === 'danger';
 
-    // Parse transaction details
+    // Parse transaction details — escape ALL DApp-controlled values (XSS prevention)
     const txParams = (data.params?.[0] || {}) as Record<string, string>;
-    const toAddr = txParams.to || 'Unknown';
-    const value = txParams.value ? `${parseInt(txParams.value, 16) / 1e18} ETH` : '0 ETH';
+    const toAddr = escapeHtml(txParams.to || 'Unknown');
+    const value = escapeHtml(
+      txParams.value ? `${parseInt(txParams.value, 16) / 1e18} ETH` : '0 ETH'
+    );
+    const safeMethodLabel = escapeHtml(data.methodLabel);
+    const safeOrigin = escapeHtml(data.origin);
+    const safeExplanation = data.explanation ? escapeHtml(data.explanation) : '';
 
     const overlay = document.createElement('div');
     overlay.className = 'overlay';
@@ -220,11 +242,11 @@ function showAlertPanelAndWait(data: AlertData): Promise<'approve' | 'reject'> {
           <div class="section-body">
             <div class="detail-row">
               <span class="detail-label">Method</span>
-              <span class="detail-value">${data.methodLabel}</span>
+              <span class="detail-value">${safeMethodLabel}</span>
             </div>
             <div class="detail-row">
               <span class="detail-label">DApp</span>
-              <span class="detail-value">${data.origin}</span>
+              <span class="detail-value">${safeOrigin}</span>
             </div>
             <div class="detail-row">
               <span class="detail-label">To</span>
@@ -237,10 +259,10 @@ function showAlertPanelAndWait(data: AlertData): Promise<'approve' | 'reject'> {
           </div>
         </div>
 
-        ${data.explanation ? `
+        ${safeExplanation ? `
         <div class="section">
           <div class="section-title">Risk Analysis</div>
-          <div class="section-body explanation">${data.explanation}</div>
+          <div class="section-body explanation">${safeExplanation}</div>
         </div>
         ` : ''}
 
@@ -290,25 +312,16 @@ export function initBridge(): void {
 
     const payload = data.payload;
 
+    // === Security: Only allow specific message types from Main World ===
+    const ALLOWED_FROM_MAIN_WORLD = new Set(['WEB3_INTERCEPT']);
+    if (!ALLOWED_FROM_MAIN_WORLD.has(payload.type as string)) {
+      return; // Reject all other message types — prevents privilege escalation
+    }
+
     // === Web3 Intercept: Show AlertPanel ===
     if (payload.type === 'WEB3_INTERCEPT') {
       await handleWeb3Intercept(data);
       return;
-    }
-
-    // === Default: relay to background and send response back ===
-    try {
-      const response = await chrome.runtime.sendMessage(payload);
-      sendToMainWorld(
-        { requestId: data.requestId, response },
-        data.requestId
-      );
-    } catch (err) {
-      console.error('[Aegis Bridge] Error relaying message:', err);
-      sendToMainWorld(
-        { requestId: data.requestId, response: { error: String(err) } },
-        data.requestId
-      );
     }
   });
 
