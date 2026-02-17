@@ -5,8 +5,10 @@ import { DEFAULT_SETTINGS } from '../shared/types';
 import Dashboard from './pages/Dashboard';
 import Logs from './pages/Logs';
 import Whitelist from './pages/Whitelist';
+import Settings from './pages/Settings';
+import { LocaleProvider, type Locale } from './i18n';
 
-type Page = 'dashboard' | 'logs' | 'whitelist';
+type Page = 'dashboard' | 'logs' | 'whitelist' | 'settings';
 
 function App() {
   const [settings, setSettings] = useState<AegisSettings>(DEFAULT_SETTINGS);
@@ -31,6 +33,10 @@ function App() {
     });
   };
 
+  const handleLocaleChange = (locale: Locale) => {
+    updateSettings({ language: locale });
+  };
+
   if (loading) {
     return (
       <div className="w-[360px] h-[480px] bg-[#0f0f1a] flex items-center justify-center">
@@ -40,23 +46,35 @@ function App() {
   }
 
   return (
-    <div className="w-[360px] h-[480px] bg-[#0f0f1a] text-[#e0e0e0] overflow-y-auto">
-      {page === 'dashboard' && (
-        <Dashboard
-          settings={settings}
-          onUpdate={updateSettings}
-          onNavigate={setPage}
-        />
-      )}
-      {page === 'logs' && <Logs onBack={() => setPage('dashboard')} />}
-      {page === 'whitelist' && (
-        <Whitelist
-          settings={settings}
-          onUpdate={updateSettings}
-          onBack={() => setPage('dashboard')}
-        />
-      )}
-    </div>
+    <LocaleProvider
+      initialLocale={(settings.language as Locale) || 'en'}
+      onLocaleChange={handleLocaleChange}
+    >
+      <div className="w-[360px] h-[480px] bg-[#0f0f1a] text-[#e0e0e0] overflow-y-auto">
+        {page === 'dashboard' && (
+          <Dashboard
+            settings={settings}
+            onUpdate={updateSettings}
+            onNavigate={setPage}
+          />
+        )}
+        {page === 'logs' && <Logs onBack={() => setPage('dashboard')} />}
+        {page === 'whitelist' && (
+          <Whitelist
+            settings={settings}
+            onUpdate={updateSettings}
+            onBack={() => setPage('dashboard')}
+          />
+        )}
+        {page === 'settings' && (
+          <Settings
+            settings={settings}
+            onUpdate={updateSettings}
+            onBack={() => setPage('dashboard')}
+          />
+        )}
+      </div>
+    </LocaleProvider>
   );
 }
 

@@ -7,13 +7,18 @@
  * - Check whitelist + settings before scanning
  * - Log interception events for Popup display
  * - Proxy LLM API calls (protecting API keys from content scripts)
+ * - Web3 Sentinel: analyze transactions via local pre-screen + LLM
+ * - API Key CRUD: store/delete/check/validate BYOK keys
  */
 
 import { MSG } from '../shared/message_types';
 import { dlpScan } from '../engines/dlp_engine';
 import { STORAGE_KEYS } from '../shared/constants';
 import { DEFAULT_SETTINGS } from '../shared/types';
-import type { AegisSettings, InterceptLogEntry, DLPScanResult } from '../shared/types';
+import type { AegisSettings, InterceptLogEntry, DLPScanResult, LLMProvider } from '../shared/types';
+import { analyzeSentinel } from '../engines/sentinel_engine';
+import { smartLLMCall, validateApiKey, getUsageStats } from './llm_proxy';
+import { storeApiKey, deleteApiKey, hasApiKey } from '../shared/key_vault';
 
 const MAX_LOG_ENTRIES = 200;
 
@@ -120,8 +125,8 @@ async function handleMessage(
           return;
         }
 
-        // Run DLP scan
-        const result: DLPScanResult = dlpScan(text);
+        // Run DLP scan (async for multi-language mnemonic + multi-chain key detection)
+        const result: DLPScanResult = await dlpScan(text);
 
         // Filter by confidence threshold
         const threshold = getConfidenceThreshold();
@@ -193,6 +198,118 @@ async function handleMessage(
         await chrome.storage.local.set({ [STORAGE_KEYS.INTERCEPT_LOG]: [] });
         await chrome.action.setBadgeText({ text: '' });
         sendResponse({ ok: true });
+        break;
+      }
+
+      case MSG.WEB3_INTERCEPT: {
+        const { method, params, origin } = message.payload as {
+          method: string;
+          params: unknown[];
+          origin: string;
+        };
+
+        // Skip if sentinel disabled
+        if (!cachedSettings.enabled || !cachedSettings.web3SentinelEnabled) {
+          sendResponse({ riskLevel: 'safe', explanation: 'Web3 Sentinel disabled' });
+          return;
+        }
+
+        console.log(`[Aegis] Web3 intercept: ${method} from ${origin}`);
+
+        // Build LLM call function (if provider configured)
+        const llmProvider = cachedSettings.llmProvider;
+        const llmCallFn = async (prompt: string): Promise<string> => {
+          return smartLLMCall(prompt, llmProvider);
+        };
+
+        // Run full sentinel analysis (Tier 1 local + Tier 2 LLM)
+        const sentinelResult = await analyzeSentinel(method, params, origin, llmCallFn);
+
+        console.log(`[Aegis] Sentinel result: ${sentinelResult.riskLevel} for ${method}`);
+
+        sendResponse({
+          riskLevel: sentinelResult.riskLevel,
+          explanation: sentinelResult.explanation,
+          riskFactors: sentinelResult.riskFactors,
+          decodedAction: sentinelResult.decodedAction,
+        });
+        break;
+      }
+
+      // ===== API Key Management (BYOK) =====
+
+      case MSG.STORE_API_KEY: {
+        const { apiKey, provider } = message.payload as {
+          apiKey: string;
+          provider: LLMProvider;
+        };
+
+        // Validate the key first
+        const validation = await validateApiKey(apiKey, provider);
+        if (!validation.valid) {
+          sendResponse({ ok: false, error: validation.error || 'Invalid API key' });
+          return;
+        }
+
+        // Store encrypted
+        await storeApiKey(apiKey, provider);
+
+        // Update settings with chosen provider
+        const currentSettings = await loadSettings();
+        const updatedSettings = { ...currentSettings, llmProvider: provider };
+        await chrome.storage.local.set({ [STORAGE_KEYS.SETTINGS]: updatedSettings });
+        cachedSettings = updatedSettings;
+
+        sendResponse({ ok: true, warning: validation.error }); // warning may contain "rate limited" note
+        break;
+      }
+
+      case MSG.DELETE_API_KEY: {
+        const { provider: delProvider } = message.payload as { provider: LLMProvider };
+        await deleteApiKey(delProvider);
+
+        // Check if any other provider still has a key
+        const providers: LLMProvider[] = ['openai', 'anthropic', 'deepseek'];
+        let hasAnyKey = false;
+        for (const p of providers) {
+          if (p !== delProvider && await hasApiKey(p)) {
+            hasAnyKey = true;
+            break;
+          }
+        }
+
+        // If we deleted the active provider, reset to null (free cloud)
+        if (cachedSettings.llmProvider === delProvider) {
+          const settingsNow = await loadSettings();
+          const updated = { ...settingsNow, llmProvider: hasAnyKey ? settingsNow.llmProvider : null };
+          await chrome.storage.local.set({ [STORAGE_KEYS.SETTINGS]: updated });
+          cachedSettings = updated;
+        }
+
+        sendResponse({ ok: true });
+        break;
+      }
+
+      case MSG.CHECK_API_KEY: {
+        const { provider: checkProvider } = message.payload as { provider: LLMProvider };
+        const exists = await hasApiKey(checkProvider);
+        sendResponse({ hasKey: exists });
+        break;
+      }
+
+      case MSG.VALIDATE_API_KEY: {
+        const { apiKey: testKey, provider: testProvider } = message.payload as {
+          apiKey: string;
+          provider: LLMProvider;
+        };
+        const result = await validateApiKey(testKey, testProvider);
+        sendResponse(result);
+        break;
+      }
+
+      case MSG.GET_LLM_USAGE: {
+        const stats = await getUsageStats(cachedSettings.llmProvider);
+        sendResponse(stats);
         break;
       }
 

@@ -1,6 +1,7 @@
 import type { AegisSettings, ProtectionLevel } from '../../shared/types';
+import { useLocale, LangSwitch } from '../i18n';
 
-type Page = 'dashboard' | 'logs' | 'whitelist';
+type Page = 'dashboard' | 'logs' | 'whitelist' | 'settings';
 
 interface Props {
   settings: AegisSettings;
@@ -8,23 +9,29 @@ interface Props {
   onNavigate: (page: Page) => void;
 }
 
-const LEVEL_LABELS: Record<ProtectionLevel, { label: string; desc: string; color: string }> = {
-  low: { label: 'Low', desc: 'Only high-confidence threats', color: '#f59e0b' },
-  medium: { label: 'Medium', desc: 'Balanced protection', color: '#00d4aa' },
-  high: { label: 'High', desc: 'Maximum sensitivity', color: '#ef4444' },
+const LEVELS: ProtectionLevel[] = ['low', 'medium', 'high'];
+const LEVEL_COLORS: Record<ProtectionLevel, string> = {
+  low: '#f59e0b',
+  medium: '#00d4aa',
+  high: '#ef4444',
 };
 
 export default function Dashboard({ settings, onUpdate, onNavigate }: Props) {
+  const { t } = useLocale();
+
   return (
     <div className="flex flex-col h-full">
       {/* Header */}
       <div className="px-4 pt-4 pb-3 border-b border-[#1a1a2e]">
-        <div className="flex items-center gap-2">
-          <span className="text-2xl">&#x1f6e1;</span>
-          <div>
-            <h1 className="text-lg font-bold text-[#00d4aa]">Aegis OmniGuard</h1>
-            <p className="text-xs text-[#888]">AI-Era Data Sovereignty Guardian</p>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="text-2xl">&#x1f6e1;</span>
+            <div>
+              <h1 className="text-lg font-bold text-[#00d4aa]">{t('dashboard.title')}</h1>
+              <p className="text-xs text-[#888]">{t('dashboard.subtitle')}</p>
+            </div>
           </div>
+          <LangSwitch />
         </div>
       </div>
 
@@ -32,9 +39,9 @@ export default function Dashboard({ settings, onUpdate, onNavigate }: Props) {
       <div className="px-4 py-3">
         <div className="flex items-center justify-between bg-[#1a1a2e] rounded-xl p-4">
           <div>
-            <div className="font-semibold">Protection Shield</div>
+            <div className="font-semibold">{t('dashboard.shield')}</div>
             <div className="text-xs text-[#888] mt-1">
-              {settings.enabled ? 'Active - Monitoring all inputs' : 'Disabled'}
+              {settings.enabled ? t('dashboard.shield.active') : t('dashboard.shield.disabled')}
             </div>
           </div>
           <button
@@ -54,10 +61,9 @@ export default function Dashboard({ settings, onUpdate, onNavigate }: Props) {
 
       {/* Protection Level */}
       <div className="px-4 py-2">
-        <div className="text-sm font-semibold mb-2">Protection Level</div>
+        <div className="text-sm font-semibold mb-2">{t('dashboard.level')}</div>
         <div className="flex gap-2">
-          {(Object.keys(LEVEL_LABELS) as ProtectionLevel[]).map((level) => {
-            const info = LEVEL_LABELS[level];
+          {LEVELS.map((level) => {
             const isActive = settings.protectionLevel === level;
             return (
               <button
@@ -71,11 +77,11 @@ export default function Dashboard({ settings, onUpdate, onNavigate }: Props) {
               >
                 <div
                   className="text-sm font-bold"
-                  style={{ color: isActive ? info.color : '#888' }}
+                  style={{ color: isActive ? LEVEL_COLORS[level] : '#888' }}
                 >
-                  {info.label}
+                  {t(`dashboard.level.${level}`)}
                 </div>
-                <div className="text-[10px] text-[#666] mt-1">{info.desc}</div>
+                <div className="text-[10px] text-[#666] mt-1">{t(`dashboard.level.${level}.desc`)}</div>
               </button>
             );
           })}
@@ -84,20 +90,19 @@ export default function Dashboard({ settings, onUpdate, onNavigate }: Props) {
 
       {/* Module Toggles */}
       <div className="px-4 py-2">
-        <div className="text-sm font-semibold mb-2">Modules</div>
+        <div className="text-sm font-semibold mb-2">{t('dashboard.modules')}</div>
         <div className="space-y-2">
           <ModuleToggle
-            label="Web2 DLP Shield"
-            desc="Detect credit cards, mnemonics, API keys, PII"
+            label={t('dashboard.module.dlp')}
+            desc={t('dashboard.module.dlp.desc')}
             enabled={settings.web2DlpEnabled}
             onChange={(v) => onUpdate({ web2DlpEnabled: v })}
           />
           <ModuleToggle
-            label="Web3 Sentinel"
-            desc="Smart contract signature analysis"
+            label={t('dashboard.module.sentinel')}
+            desc={t('dashboard.module.sentinel.desc')}
             enabled={settings.web3SentinelEnabled}
             onChange={(v) => onUpdate({ web3SentinelEnabled: v })}
-            badge="Phase 2"
           />
         </div>
       </div>
@@ -111,8 +116,8 @@ export default function Dashboard({ settings, onUpdate, onNavigate }: Props) {
           >
             <span className="text-base">&#x1f4cb;</span>
             <div className="text-left">
-              <div className="text-xs font-medium">Intercept Log</div>
-              <div className="text-[10px] text-[#666]">View blocked items</div>
+              <div className="text-xs font-medium">{t('dashboard.nav.logs')}</div>
+              <div className="text-[10px] text-[#666]">{t('dashboard.nav.logs.desc')}</div>
             </div>
           </button>
           <button
@@ -121,8 +126,20 @@ export default function Dashboard({ settings, onUpdate, onNavigate }: Props) {
           >
             <span className="text-base">&#x1f310;</span>
             <div className="text-left">
-              <div className="text-xs font-medium">Whitelist</div>
-              <div className="text-[10px] text-[#666]">{settings.whitelist.length} domains</div>
+              <div className="text-xs font-medium">{t('dashboard.nav.whitelist')}</div>
+              <div className="text-[10px] text-[#666]">
+                {t('dashboard.nav.whitelist.desc', { count: String(settings.whitelist.length) })}
+              </div>
+            </div>
+          </button>
+          <button
+            onClick={() => onNavigate('settings')}
+            className="flex-1 flex items-center gap-2 bg-[#1a1a2e] hover:bg-[#252540] rounded-lg p-3 transition-colors"
+          >
+            <span className="text-base">&#x2699;&#xfe0f;</span>
+            <div className="text-left">
+              <div className="text-xs font-medium">{t('dashboard.nav.settings')}</div>
+              <div className="text-[10px] text-[#666]">{t('dashboard.nav.settings.desc')}</div>
             </div>
           </button>
         </div>
@@ -130,7 +147,7 @@ export default function Dashboard({ settings, onUpdate, onNavigate }: Props) {
 
       {/* Footer */}
       <div className="px-4 py-3 border-t border-[#1a1a2e] text-center">
-        <span className="text-[10px] text-[#555]">Aegis OmniGuard v0.1.0 | Open Source</span>
+        <span className="text-[10px] text-[#555]">{t('dashboard.footer')}</span>
       </div>
     </div>
   );
@@ -141,24 +158,17 @@ function ModuleToggle({
   desc,
   enabled,
   onChange,
-  badge,
 }: {
   label: string;
   desc: string;
   enabled: boolean;
   onChange: (v: boolean) => void;
-  badge?: string;
 }) {
   return (
     <div className="flex items-center justify-between bg-[#1a1a2e] rounded-lg p-3">
       <div className="flex-1">
         <div className="flex items-center gap-2">
           <span className="text-sm font-medium">{label}</span>
-          {badge && (
-            <span className="text-[9px] px-1.5 py-0.5 bg-[#333] text-[#888] rounded">
-              {badge}
-            </span>
-          )}
         </div>
         <div className="text-[11px] text-[#666] mt-0.5">{desc}</div>
       </div>

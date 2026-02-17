@@ -1,25 +1,19 @@
 import { useEffect, useState } from 'react';
 import { MSG } from '../../shared/message_types';
 import type { InterceptLogEntry, SensitiveDataType } from '../../shared/types';
+import { useLocale } from '../i18n';
 
 const TYPE_ICONS: Record<SensitiveDataType, string> = {
   credit_card: '\u{1F4B3}',
   mnemonic: '\u{1F511}',
   private_key: '\u{1F512}',
+  private_key_bitcoin: '\u{1F4B0}',
+  private_key_solana: '\u{1F512}',
+  private_key_tron: '\u{1F512}',
   api_key: '\u{1F5DD}',
   pii_id_card: '\u{1FAAA}',
   pii_phone: '\u{1F4F1}',
   pii_email: '\u{1F4E7}',
-};
-
-const TYPE_LABELS: Record<SensitiveDataType, string> = {
-  credit_card: 'Credit Card',
-  mnemonic: 'Mnemonic',
-  private_key: 'Private Key',
-  api_key: 'API Key',
-  pii_id_card: 'ID Card',
-  pii_phone: 'Phone',
-  pii_email: 'Email',
 };
 
 interface Props {
@@ -27,6 +21,7 @@ interface Props {
 }
 
 export default function Logs({ onBack }: Props) {
+  const { t } = useLocale();
   const [logs, setLogs] = useState<InterceptLogEntry[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -65,16 +60,16 @@ export default function Logs({ onBack }: Props) {
             onClick={onBack}
             className="text-[#888] hover:text-white text-sm"
           >
-            &larr; Back
+            &larr; {t('common.back')}
           </button>
-          <h2 className="text-sm font-semibold text-[#00d4aa]">Interception Log</h2>
+          <h2 className="text-sm font-semibold text-[#00d4aa]">{t('logs.title')}</h2>
         </div>
         {logs.length > 0 && (
           <button
             onClick={clearLogs}
             className="text-[10px] text-[#666] hover:text-[#ef4444] transition-colors"
           >
-            Clear All
+            {t('logs.clear')}
           </button>
         )}
       </div>
@@ -83,13 +78,13 @@ export default function Logs({ onBack }: Props) {
       <div className="flex-1 overflow-y-auto">
         {loading ? (
           <div className="flex items-center justify-center h-32 text-[#666] text-sm">
-            Loading...
+            {t('common.loading')}
           </div>
         ) : logs.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-48 text-[#555]">
             <span className="text-3xl mb-2">&#x2705;</span>
-            <span className="text-sm">No interceptions yet</span>
-            <span className="text-[10px] text-[#444] mt-1">Your data is clean</span>
+            <span className="text-sm">{t('logs.empty')}</span>
+            <span className="text-[10px] text-[#444] mt-1">{t('logs.empty.desc')}</span>
           </div>
         ) : (
           <div className="divide-y divide-[#1a1a2e]">
@@ -108,7 +103,7 @@ export default function Logs({ onBack }: Props) {
                       className="inline-flex items-center gap-1 text-[10px] bg-[#1e293b] text-[#94a3b8] px-2 py-0.5 rounded-full"
                     >
                       <span>{TYPE_ICONS[d.type] || '\u{1F6E1}'}</span>
-                      <span>{TYPE_LABELS[d.type] || d.type}</span>
+                      <span>{t(`types.${d.type}`) || d.type}</span>
                     </span>
                   ))}
                 </div>
@@ -122,7 +117,7 @@ export default function Logs({ onBack }: Props) {
       {logs.length > 0 && (
         <div className="px-4 py-2 border-t border-[#1a1a2e] text-center">
           <span className="text-[10px] text-[#555]">
-            {logs.length} interception{logs.length > 1 ? 's' : ''} recorded
+            {t('logs.count', { count: String(logs.length) })}
           </span>
         </div>
       )}

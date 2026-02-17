@@ -11,25 +11,30 @@
 import { DLP_PATTERNS } from '../shared/constants';
 import type { DLPDetection, DLPScanResult } from '../shared/types';
 import { luhnCheck, maskCreditCard } from './luhn';
-import { detectMnemonic } from './bip39_checker';
+import { detectMnemonic, detectMnemonicAsync } from './bip39_checker';
 import { isHighEntropySecret } from './entropy';
 import { validateCnIdCard, detectCnPhone, detectEmails, maskIdCard, maskPhone, maskEmail } from './pii_detector';
+import { scanWeb3Keys } from './wallet_detector';
 
 /**
- * Main DLP scan function
+ * Main DLP scan function (async for multi-language mnemonic support)
  * Scans text for sensitive data using two-pass strategy
  */
-export function dlpScan(text: string): DLPScanResult {
+export async function dlpScan(text: string): Promise<DLPScanResult> {
   const detections: DLPDetection[] = [];
 
   // === Credit Card Detection ===
   scanCreditCards(text, detections);
 
-  // === Mnemonic Phrase Detection ===
+  // === Mnemonic Phrase Detection (English sync + Chinese async) ===
   scanMnemonics(text, detections);
+  await scanMnemonicsAsync(text, detections);
 
-  // === Private Key Detection ===
+  // === Private Key Detection (ETH) ===
   scanPrivateKeys(text, detections);
+
+  // === Multi-Chain Private Key Detection (BTC, Solana, Tron) ===
+  scanMultiChainKeys(text, detections);
 
   // === API Key Detection ===
   scanApiKeys(text, detections);
@@ -74,6 +79,70 @@ function scanMnemonics(text: string, detections: DLPDetection[]): void {
       masked: '[MNEMONIC REDACTED]',
       confidence: 0.99,
       position: { start, end: start + mnemonic.length },
+    });
+  }
+}
+
+async function scanMnemonicsAsync(text: string, detections: DLPDetection[]): Promise<void> {
+  // Pass 2: BIP-39 multi-language wordlist verification (async for lazy-loaded wordlists)
+  const mnemonic = await detectMnemonicAsync(text);
+  if (mnemonic) {
+    // Check if this mnemonic was already detected by the sync English scan
+    const alreadyDetected = detections.some(
+      (d) => d.type === 'mnemonic' && d.original === mnemonic
+    );
+    if (!alreadyDetected) {
+      const start = text.toLowerCase().indexOf(mnemonic.toLowerCase());
+      detections.push({
+        type: 'mnemonic',
+        original: mnemonic,
+        masked: '[MNEMONIC REDACTED]',
+        confidence: 0.99,
+        position: { start, end: start + mnemonic.length },
+      });
+    }
+  }
+}
+
+function scanMultiChainKeys(text: string, detections: DLPDetection[]): void {
+  // Scan for BTC WIF, Solana, and Tron private keys
+  const web3Keys = scanWeb3Keys(text);
+
+  for (const key of web3Keys) {
+    // Skip if already detected by ETH/HEX private key scanner
+    const alreadyDetected = detections.some(
+      (d) => d.position.start <= key.position.start && d.position.end >= key.position.end
+    );
+    if (alreadyDetected) continue;
+
+    // Map chain to detection type and mask label
+    let type: DLPDetection['type'];
+    let masked: string;
+
+    switch (key.chain) {
+      case 'bitcoin':
+        type = 'private_key_bitcoin';
+        masked = '[BITCOIN WIF KEY REDACTED]';
+        break;
+      case 'solana':
+        type = 'private_key_solana';
+        masked = '[SOLANA PRIVATE KEY REDACTED]';
+        break;
+      case 'tron':
+        type = 'private_key_tron';
+        masked = '[TRON PRIVATE KEY REDACTED]';
+        break;
+      default:
+        type = 'private_key';
+        masked = '[PRIVATE KEY REDACTED]';
+    }
+
+    detections.push({
+      type,
+      original: key.matched,
+      masked,
+      confidence: key.confidence,
+      position: key.position,
     });
   }
 }

@@ -4,6 +4,9 @@ export type SensitiveDataType =
   | 'credit_card'
   | 'mnemonic'
   | 'private_key'
+  | 'private_key_bitcoin'
+  | 'private_key_solana'
+  | 'private_key_tron'
   | 'api_key'
   | 'pii_id_card'
   | 'pii_phone'
@@ -77,6 +80,7 @@ export interface InterceptLogEntry {
 // ===== Settings =====
 
 export type ProtectionLevel = 'low' | 'medium' | 'high';
+export type LLMProvider = 'openai' | 'anthropic' | 'deepseek';
 
 export interface AegisSettings {
   enabled: boolean;
@@ -84,6 +88,8 @@ export interface AegisSettings {
   whitelist: string[];
   web2DlpEnabled: boolean;
   web3SentinelEnabled: boolean;
+  llmProvider: LLMProvider | null; // null = use free cloud
+  language: 'en' | 'zh';
 }
 
 export const DEFAULT_SETTINGS: AegisSettings = {
@@ -92,4 +98,32 @@ export const DEFAULT_SETTINGS: AegisSettings = {
   whitelist: [],
   web2DlpEnabled: true,
   web3SentinelEnabled: true,
+  llmProvider: null,
+  language: 'en',
 };
+
+// ===== Sentinel Engine Types =====
+
+export type RiskLevel = 'safe' | 'warning' | 'danger';
+
+export interface SentinelResult {
+  riskLevel: RiskLevel;
+  explanation: string;
+  riskFactors: string[];
+  method: string;
+  decodedAction?: string;
+}
+
+// ===== LLM Usage Tracking =====
+
+export interface LLMUsageRecord {
+  date: string; // YYYY-MM-DD
+  count: number;
+}
+
+export interface LLMUsageStats {
+  today: number;
+  dailyLimit: number;
+  provider: LLMProvider | 'free_cloud';
+  hasApiKey: boolean;
+}

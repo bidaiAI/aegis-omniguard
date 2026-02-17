@@ -3,7 +3,12 @@ export const STORAGE_KEYS = {
   SETTINGS: 'aegis_settings',
   API_KEY: 'aegis_api_key_encrypted',
   INTERCEPT_LOG: 'aegis_intercept_log',
+  LLM_USAGE: 'aegis_llm_usage',
+  LLM_PROVIDER: 'aegis_llm_provider',
 } as const;
+
+// Free cloud tier limits
+export const FREE_CLOUD_DAILY_LIMIT = 3;
 
 // Known AI platform domains (for enhanced monitoring)
 export const AI_PLATFORM_DOMAINS = [
@@ -71,6 +76,9 @@ export const MASK_TEMPLATES: Record<string, string> = {
   credit_card: '**** **** **** ****',
   mnemonic: '[MNEMONIC REDACTED]',
   private_key: '[PRIVATE KEY REDACTED]',
+  private_key_bitcoin: '[BITCOIN WIF KEY REDACTED]',
+  private_key_solana: '[SOLANA PRIVATE KEY REDACTED]',
+  private_key_tron: '[TRON PRIVATE KEY REDACTED]',
   api_key: '[API KEY REDACTED]',
   pii_id_card: '****_****_****_**',
   pii_phone: '***_****_****',

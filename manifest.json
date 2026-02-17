@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Aegis OmniGuard",
   "description": "AI-era data sovereignty guardian. Prevent sensitive data leakage to AI tools & protect Web3 wallet signatures.",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "icons": {
     "16": "public/icons/icon16.png",
     "48": "public/icons/icon48.png",
@@ -29,6 +29,18 @@
       "matches": ["<all_urls>"],
       "js": ["src/content/dlp_observer.ts"],
       "run_at": "document_start"
+    },
+    {
+      "matches": ["<all_urls>"],
+      "js": ["src/content/injector.ts"],
+      "run_at": "document_start",
+      "world": "ISOLATED"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["provider_proxy.js"],
+      "matches": ["<all_urls>"]
     }
   ]
 }
