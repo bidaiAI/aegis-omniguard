@@ -9,10 +9,13 @@
 🛡️ **你正在向 AI 泄露秘密，只是你还不知道。**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![Chrome Web Store](https://img.shields.io/badge/Chrome_Web_Store-Live-00d4aa?logo=googlechrome&logoColor=white)](https://chromewebstore.google.com/detail/aegis-omniguard/fcgceeldnoifbaffonoaicbbcncfkjgg)
 [![Chrome MV3](https://img.shields.io/badge/Chrome-MV3-blue.svg)]()
 [![Tests](https://img.shields.io/badge/Tests-61%20passed-brightgreen.svg)]()
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue.svg)]()
 [![Twitter](https://img.shields.io/badge/Twitter-@bidaoofficial-1DA1F2?logo=x&logoColor=white)](https://x.com/bidaoofficial)
+
+🌐 **Website:** [aegis-web4.com](https://aegis-web4.com) | 🏪 **Chrome Store:** [Install Free](https://chromewebstore.google.com/detail/aegis-omniguard/fcgceeldnoifbaffonoaicbbcncfkjgg) | 🐦 **Twitter:** [@bidaoofficial](https://x.com/bidaoofficial)
 
 [Install](#install) | [How It Works](#how-it-works) | [中文说明](#chinese)
 
