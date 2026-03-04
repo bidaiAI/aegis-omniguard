@@ -115,6 +115,50 @@ Intercepts wallet interactions **before** MetaMask popup — between your click 
 - One-click `EN | 中` toggle in Dashboard header
 - Language preference persisted to settings
 
+### AI Output Scanner (Phase 3 - v0.3.0) 🆕
+
+**No tool protects what AI sends BACK to you — until now.**
+
+Monitors AI chatbot responses (ChatGPT, Claude, Gemini, DeepSeek) in real-time:
+
+| Detection | What it catches |
+|-----------|----------------|
+| Phishing URLs | Suspicious TLDs + crypto keywords in AI responses |
+| Fake addresses | Unverified wallet addresses embedded in AI output |
+| Backdoored code | Dangerous patterns in AI-generated code blocks (`approve(MAX)`, hardcoded addresses) |
+| Prompt injection | Hidden instructions in AI responses attempting to manipulate user actions |
+
+Warning badges injected via Shadow DOM directly next to suspicious content — zero CSS conflicts, zero false positives on normal responses.
+
+### Clipboard Guard (Phase 3 - v0.3.0) 🆕
+
+**Clipboard hijacking malware (StilachiRAT, ClipBanker) swaps your crypto address silently. No Chrome extension detects this — Aegis does.**
+
+| Chain | Address Format |
+|-------|---------------|
+| ETH / BSC | `0x` + 40 hex chars |
+| BTC Legacy | Starts with `1` or `3`, 25-34 chars |
+| BTC Bech32 | Starts with `bc1`, 25-62 chars |
+| SOL | Base58, 32-44 chars |
+| TRON | `T` + 33 chars |
+
+How it works:
+1. You copy a crypto address → Aegis remembers it
+2. You paste → Aegis compares copied vs pasted content
+3. If the address changed → **RED ALERT** with original vs tampered comparison
+4. If address was never copied → **INFO** warning (potential malware injection)
+
+### Security Skills (Phase 3 - v0.3.0) 🆕
+
+Free CLI tools — run them without installing anything:
+
+| Skill | What it does | Usage |
+|-------|-------------|-------|
+| **[openclaw-audit](skills/openclaw-audit/)** | Scans OpenClaw AI Agent installations for malicious skills, CVEs, insecure configs | `node skills/openclaw-audit/index.js ~/.openclaw` |
+| **[aegis-scan](skills/aegis-scan/)** | Scans code projects for hardcoded API keys, private keys, seed phrases | `node skills/aegis-scan/index.js /path/to/project` |
+
+> **openclaw-audit** was [contributed to the official OpenClaw repository](https://github.com/openclaw/openclaw/issues/35059) as a security tool for the community.
+
 ---
 
 <a name="install"></a>
@@ -122,11 +166,9 @@ Intercepts wallet interactions **before** MetaMask popup — between your click 
 
 ### Chrome Web Store (Recommended for everyone)
 
-> **Submitted for review!** Search **"Aegis OmniGuard"** in Chrome Web Store in a few days (typically 1-3 business days for approval).
+> **Now Live!** One-click install from Chrome Web Store:
 >
-> Direct link (available after approval): [Chrome Web Store - Aegis OmniGuard](https://chrome.google.com/webstore/detail/aegis-omniguard)
->
-> Don't want to build from source? Just wait for the Chrome Web Store version — one-click install, auto-updates included!
+> **[Install Aegis OmniGuard — Free](https://chromewebstore.google.com/detail/aegis-omniguard/fcgceeldnoifbaffonoaicbbcncfkjgg)**
 
 ### Manual Install (30 seconds, for developers)
 
@@ -186,6 +228,8 @@ You type/paste text in ChatGPT / Claude / Cursor / any website
   |     +-- Native setter override for React/Vue state sync
   |     +-- Shadow DOM toast injection
   |     +-- Bridge: relay Web3 intercepts to background
+  |     +-- AI Output Scanner: response threat detection    [NEW v0.3]
+  |     +-- Clipboard Guard: address hijack detection       [NEW v0.3]
   |
   +-- Injected Script (Main World)               [NEW v0.2]
   |     +-- ES6 Proxy hijack window.ethereum.request()
@@ -272,12 +316,17 @@ npx tsx test/dlp_engine.test.ts  # Run tests (61 passing)
 src/
   background/      Service Worker (message routing, DLP dispatch, LLM proxy)
   content/         Content Script (DOM monitoring, event interception, bridge)
+    ai_output_scanner.ts   AI response threat detection        [NEW v0.3]
+    clipboard_guard.ts     Clipboard hijack detection           [NEW v0.3]
   engines/         DLP Engine, Sentinel Engine, wallet detector, code stripper
   inject/          Main World: ES6 Proxy hijack window.ethereum
   popup/           Popup UI (Dashboard, Logs, Whitelist, Settings, i18n)
   overlay/         Shadow DOM host management
   shared/          Types, constants, message protocol, key vault
   assets/          BIP-39 wordlists (English embedded, Chinese lazy-load)
+skills/            Standalone security CLI tools                [NEW v0.3]
+  openclaw-audit/  OpenClaw malicious skill scanner
+  aegis-scan/      Project secret scanner
 test/              61 test cases (DLP + multi-chain + false positive control)
 ```
 
@@ -287,8 +336,9 @@ test/              61 test cases (DLP + multi-chain + false positive control)
 
 - [x] **Phase 1 (v0.1.0)**: Web2 DLP Shield (local scanning, zero cloud)
 - [x] **Phase 2 (v0.2.0)**: Web3 Sentinel + Multi-chain detection + BYOK + i18n
-- [ ] **Phase 3**: Cross-chain bridge monitoring, phishing URL database
+- [x] **Phase 3 (v0.3.0)**: AI Output Scanner + Clipboard Guard + Security Skills
 - [ ] **Phase 4**: Enterprise features (team management, advanced rules)
+- [ ] Cross-chain bridge monitoring
 - [ ] VS Code / Cursor extension
 - [ ] Firefox support
 
@@ -483,11 +533,9 @@ This is a passion project built with love, not profit. If Aegis OmniGuard has pr
 
 ### Chrome 应用商店（所有人推荐）
 
-> **已提交审核！** 预计 1-3 个工作日内通过。届时在 Chrome 应用商店搜索 **「Aegis OmniGuard」** 即可一键安装。
+> **已上架！** 一键安装：
 >
-> 直达链接（审核通过后可用）：[Chrome 应用商店 - Aegis OmniGuard](https://chrome.google.com/webstore/detail/aegis-omniguard)
->
-> 不想折腾代码？等 Chrome 应用商店版本就行 — 一键安装，自动更新！
+> **[安装 Aegis OmniGuard — 免费](https://chromewebstore.google.com/detail/aegis-omniguard/fcgceeldnoifbaffonoaicbbcncfkjgg)**
 
 ### 手动安装（30 秒，适合开发者）
 
@@ -579,10 +627,30 @@ v0.2.0 已支持！点击 Popup 右上角的 `EN | 中` 按钮即可一键切换
 
 - [x] **第一阶段 (v0.1.0)**：Web2 数据防泄露盾（本地扫描，零上云）
 - [x] **第二阶段 (v0.2.0)**：Web3 哨兵 + 多链私钥检测 + BYOK + 中英双语
-- [ ] **第三阶段**：跨链桥监控、钓鱼 URL 数据库
+- [x] **第三阶段 (v0.3.0)**：AI 回复扫描 + 剪贴板守卫 + 安全工具集
 - [ ] **第四阶段**：企业功能（团队管理，高级规则）
+- [ ] 跨链桥监控
 - [ ] VS Code / Cursor 插件
 - [ ] Firefox 支持
+
+### v0.3.0 新功能 🆕
+
+**v0.1-0.2 保护你发给 AI 的数据 → v0.3 保护 AI 发给你的数据**
+
+| 功能 | 一句话说明 |
+|------|-----------|
+| **AI 回复扫描** | ChatGPT 给你的回复里有钓鱼链接或假合约地址？自动标红警告 |
+| **剪贴板守卫** | 复制钱包地址后被病毒偷换？粘贴时立即警告并显示原始/篡改对比 |
+| **OpenClaw 审计** | 一键扫描 AI Agent 的插件有没有恶意代码（[已贡献到 OpenClaw 官方](https://github.com/openclaw/openclaw/issues/35059)） |
+| **代码密钥扫描** | 一键检查项目有没有被 AI 写进去的硬编码密钥 |
+
+```bash
+# 扫描 OpenClaw 安装
+node skills/openclaw-audit/index.js ~/.openclaw
+
+# 扫描代码项目
+node skills/aegis-scan/index.js /你的项目路径
+```
 
 ---
 
