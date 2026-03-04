@@ -427,7 +427,7 @@ function init(): void {
   document.addEventListener('copy', handleCopy as EventListener, true);
   document.addEventListener('paste', handlePaste as EventListener, true);
 
-  console.log('[Aegis] Clipboard Guard v0.1.0 initialized.');
+  console.log('[Aegis] Clipboard Guard v0.3.0 initialized.');
 }
 
 init();

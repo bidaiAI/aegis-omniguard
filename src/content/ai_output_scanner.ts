@@ -613,7 +613,7 @@ function init(): void {
     observeAIResponses();
   }
 
-  console.log('[Aegis] AI Output Scanner v0.1.0 initialized.');
+  console.log('[Aegis] AI Output Scanner v0.3.0 initialized.');
 }
 
 init();
