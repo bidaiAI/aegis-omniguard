@@ -203,6 +203,8 @@ async function handleMessage(
         if (typeof raw.enabled === 'boolean') validated.enabled = raw.enabled;
         if (typeof raw.web2DlpEnabled === 'boolean') validated.web2DlpEnabled = raw.web2DlpEnabled;
         if (typeof raw.web3SentinelEnabled === 'boolean') validated.web3SentinelEnabled = raw.web3SentinelEnabled;
+        if (typeof raw.aiOutputScannerEnabled === 'boolean') validated.aiOutputScannerEnabled = raw.aiOutputScannerEnabled;
+        if (typeof raw.clipboardGuardEnabled === 'boolean') validated.clipboardGuardEnabled = raw.clipboardGuardEnabled;
         if (raw.protectionLevel === 'low' || raw.protectionLevel === 'medium' || raw.protectionLevel === 'high') {
           validated.protectionLevel = raw.protectionLevel;
         }
@@ -350,6 +352,85 @@ async function handleMessage(
       case MSG.GET_LLM_USAGE: {
         const stats = await getUsageStats(cachedSettings.llmProvider);
         sendResponse(stats);
+        break;
+      }
+
+      // ===== AI Output Scanner =====
+
+      case MSG.AI_OUTPUT_DETECTION: {
+        const { detections: aiDetections, url: aiUrl, timestamp: aiTs } = message.payload as {
+          detections: Array<{ type: string; masked: string }>;
+          url: string;
+          timestamp: number;
+        };
+
+        let aiDomain = '';
+        try { aiDomain = new URL(aiUrl).hostname; } catch { aiDomain = aiUrl; }
+
+        await addLogEntry({
+          timestamp: aiTs,
+          url: aiUrl,
+          domain: aiDomain,
+          detections: aiDetections as InterceptLogEntry['detections'],
+        });
+
+        // Update badge
+        const aiLogResult = await chrome.storage.local.get(STORAGE_KEYS.INTERCEPT_LOG);
+        const aiLogs = (aiLogResult[STORAGE_KEYS.INTERCEPT_LOG] as InterceptLogEntry[]) || [];
+        const aiTodayCount = aiLogs.filter((l) => Date.now() - l.timestamp < 86400000).length;
+        if (aiTodayCount > 0) {
+          await chrome.action.setBadgeText({ text: String(aiTodayCount) });
+          await chrome.action.setBadgeBackgroundColor({ color: '#818cf8' });
+        }
+
+        sendResponse({ ok: true });
+        break;
+      }
+
+      // ===== Clipboard Guard =====
+
+      case MSG.CLIPBOARD_HIJACK_ALERT: {
+        const {
+          detections: cbDetections,
+          url: cbUrl,
+          timestamp: cbTs,
+        } = message.payload as {
+          detections: Array<{ type: string; masked: string }>;
+          url: string;
+          timestamp: number;
+          copiedAddress: string | null;
+          pastedAddress: string;
+          chain: string;
+        };
+
+        let cbDomain = '';
+        try { cbDomain = new URL(cbUrl).hostname; } catch { cbDomain = cbUrl; }
+
+        await addLogEntry({
+          timestamp: cbTs,
+          url: cbUrl,
+          domain: cbDomain,
+          detections: cbDetections as InterceptLogEntry['detections'],
+        });
+
+        // Update badge with urgent color for clipboard hijack
+        const cbLogResult = await chrome.storage.local.get(STORAGE_KEYS.INTERCEPT_LOG);
+        const cbLogs = (cbLogResult[STORAGE_KEYS.INTERCEPT_LOG] as InterceptLogEntry[]) || [];
+        const cbTodayCount = cbLogs.filter((l) => Date.now() - l.timestamp < 86400000).length;
+        if (cbTodayCount > 0) {
+          await chrome.action.setBadgeText({ text: String(cbTodayCount) });
+          await chrome.action.setBadgeBackgroundColor({ color: '#ef4444' });
+        }
+
+        sendResponse({ ok: true });
+        break;
+      }
+
+      // ===== Settings query for content scripts =====
+
+      case MSG.GET_SETTINGS_FOR_CS: {
+        const csSettings = await loadSettings();
+        sendResponse(csSettings);
         break;
       }
 

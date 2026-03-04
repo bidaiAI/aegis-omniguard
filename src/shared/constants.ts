@@ -84,3 +84,38 @@ export const MASK_TEMPLATES: Record<string, string> = {
   pii_phone: '***_****_****',
   pii_email: '***@***.***',
 } as const;
+
+// AI Output Scanner: Suspicious TLD patterns (when combined with crypto keywords)
+export const SUSPICIOUS_TLDS = [
+  '.xyz', '.tk', '.ml', '.ga', '.cf', '.gq', '.top', '.buzz', '.club',
+  '.icu', '.work', '.click', '.link', '.surf', '.rest', '.monster',
+] as const;
+
+// AI Output Scanner: Phishing URL substrings
+export const PHISHING_URL_PATTERNS = [
+  'fake-metamask', 'claim-airdrop', 'free-mint', 'airdrop-claim',
+  'connect-wallet', 'verify-wallet', 'nft-claim', 'token-claim',
+  'claim-reward', 'metamask-verify', 'wallet-connect-verify',
+  'uniswap-airdrop', 'opensea-claim', 'pancakeswap-airdrop',
+  'eth-claim', 'btc-giveaway', 'crypto-reward', 'web3-verify',
+] as const;
+
+// AI Output Scanner: Crypto keywords that make suspicious TLDs more risky
+export const CRYPTO_URL_KEYWORDS = [
+  'airdrop', 'claim', 'mint', 'swap', 'bridge', 'stake', 'yield',
+  'defi', 'nft', 'token', 'wallet', 'metamask', 'uniswap', 'opensea',
+  'pancake', 'ethereum', 'bitcoin', 'crypto', 'web3', 'dapp',
+] as const;
+
+// Crypto address patterns (for clipboard guard and AI output scanner)
+export const CRYPTO_ADDRESS_PATTERNS = {
+  // Ethereum / BSC: 0x + 40 hex chars
+  ETH: /\b0x[0-9a-fA-F]{40}\b/g,
+  // Bitcoin legacy (1...) and segwit (3... or bc1...)
+  BTC_LEGACY: /\b[13][a-km-zA-HJ-NP-Z1-9]{25,34}\b/g,
+  BTC_BECH32: /\bbc1[a-zA-HJ-NP-Z0-9]{25,62}\b/g,
+  // Solana: Base58, 32-44 chars
+  SOL: /\b[1-9A-HJ-NP-Za-km-z]{32,44}\b/g,
+  // Tron: T + 33 chars (base58)
+  TRON: /\bT[1-9A-HJ-NP-Za-km-z]{33}\b/g,
+} as const;

@@ -30,4 +30,13 @@ export const MSG = {
   // Logs
   GET_LOGS: 'GET_LOGS',
   CLEAR_LOGS: 'CLEAR_LOGS',
+
+  // AI Output Scanner
+  AI_OUTPUT_DETECTION: 'AI_OUTPUT_DETECTION',
+
+  // Clipboard Guard
+  CLIPBOARD_HIJACK_ALERT: 'CLIPBOARD_HIJACK_ALERT',
+
+  // Settings query from content scripts
+  GET_SETTINGS_FOR_CS: 'GET_SETTINGS_FOR_CS',
 } as const;

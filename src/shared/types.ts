@@ -12,6 +12,37 @@ export type SensitiveDataType =
   | 'pii_phone'
   | 'pii_email';
 
+// ===== AI Output Scanner Types =====
+
+export type AIOutputThreatType =
+  | 'suspicious_url'
+  | 'unverified_crypto_address'
+  | 'suspicious_code_wallet'
+  | 'suspicious_code_approval'
+  | 'suspicious_code_selfdestruct'
+  | 'suspicious_code_obfuscated'
+  | 'prompt_injection_indicator';
+
+export interface AIOutputDetection {
+  type: AIOutputThreatType;
+  content: string;       // The matched suspicious content
+  context: string;       // Surrounding text for display
+  severity: 'info' | 'warning' | 'danger';
+  description: string;   // Human-readable explanation
+}
+
+// ===== Clipboard Guard Types =====
+
+export type CryptoAddressChain = 'ETH' | 'BTC' | 'SOL' | 'TRON' | 'BSC';
+
+export interface ClipboardThreatEvent {
+  type: 'clipboard_hijack' | 'suspicious_paste';
+  copiedAddress: string | null;
+  pastedAddress: string;
+  chain: CryptoAddressChain;
+  timestamp: number;
+}
+
 export interface DLPDetection {
   type: SensitiveDataType;
   original: string;
@@ -69,12 +100,14 @@ export type AegisMessage =
 
 // ===== Intercept Log =====
 
+export type InterceptDetectionType = SensitiveDataType | AIOutputThreatType | 'clipboard_hijack' | 'suspicious_paste';
+
 export interface InterceptLogEntry {
   id: string;
   timestamp: number;
   url: string;
   domain: string;
-  detections: Array<{ type: SensitiveDataType; masked: string }>;
+  detections: Array<{ type: InterceptDetectionType; masked: string }>;
 }
 
 // ===== Settings =====
@@ -88,6 +121,8 @@ export interface AegisSettings {
   whitelist: string[];
   web2DlpEnabled: boolean;
   web3SentinelEnabled: boolean;
+  aiOutputScannerEnabled: boolean;
+  clipboardGuardEnabled: boolean;
   llmProvider: LLMProvider | null; // null = use free cloud
   language: 'en' | 'zh';
 }
@@ -98,6 +133,8 @@ export const DEFAULT_SETTINGS: AegisSettings = {
   whitelist: [],
   web2DlpEnabled: true,
   web3SentinelEnabled: true,
+  aiOutputScannerEnabled: true,
+  clipboardGuardEnabled: true,
   llmProvider: null,
   language: 'en',
 };

@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "Aegis OmniGuard",
-  "description": "AI-era data sovereignty guardian. Prevent sensitive data leakage to AI tools & protect Web3 wallet signatures.",
-  "version": "0.2.0",
+  "description": "Scans input locally for credit cards, API keys & crypto mnemonics before sending to AI chatbots. 100% offline, open source.",
+  "version": "0.3.0",
   "icons": {
     "16": "public/icons/icon16.png",
     "48": "public/icons/icon48.png",
@@ -35,6 +35,16 @@
       "js": ["src/content/injector.ts"],
       "run_at": "document_start",
       "world": "ISOLATED"
+    },
+    {
+      "matches": ["<all_urls>"],
+      "js": ["src/content/ai_output_scanner.ts"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": ["<all_urls>"],
+      "js": ["src/content/clipboard_guard.ts"],
+      "run_at": "document_start"
     }
   ],
   "web_accessible_resources": [

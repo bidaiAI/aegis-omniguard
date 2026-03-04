@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Aegis OmniGuard - Twitter Assets v2</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #222; color: #fff; font-family: 'Segoe UI', sans-serif; padding: 40px; }
+  h1 { color: #00d4aa; margin-bottom: 10px; }
+  h2 { color: #aaa; margin: 40px 0 15px; font-size: 18px; }
+  .spec { color: #666; font-size: 13px; margin-bottom: 15px; }
+  .preview { background: #000; border: 1px solid #333; border-radius: 16px; padding: 20px; margin-bottom: 20px; display: inline-block; }
+  .preview-label { color: #888; font-size: 12px; margin-bottom: 8px; }
+  button { background: #00d4aa; color: #000; border: none; padding: 12px 28px; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; margin: 5px; }
+  button:hover { background: #00b894; }
+  hr { border: none; border-top: 1px solid #333; margin: 30px 0; }
+  .options { display: flex; gap: 24px; flex-wrap: wrap; }
+</style>
+</head>
+<body>
+
+<h1>Aegis OmniGuard - Twitter Logo v2</h1>
+<p style="color:#999">Bright design for dark Twitter/X background. Click to download.</p>
+
+<hr>
+
+<h2>Option A: Bright Shield on Gradient</h2>
+<p class="spec">Teal gradient background — stands out on X's dark theme</p>
+<div class="options">
+  <div>
+    <div class="preview">
+      <svg id="logoA" xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 400 400">
+        <defs>
+          <linearGradient id="bgA" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#00d4aa"/><stop offset="100%" style="stop-color:#009e80"/></linearGradient>
+          <filter id="shadowA"><feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="#000" flood-opacity="0.3"/></filter>
+        </defs>
+        <rect width="400" height="400" rx="80" fill="url(#bgA)"/>
+        <!-- Shield -->
+        <g filter="url(#shadowA)">
+          <path d="M200 60 L300 110 L300 200 C300 265 255 310 200 335 C145 310 100 265 100 200 L100 110 Z" fill="rgba(255,255,255,0.2)" stroke="#fff" stroke-width="5" stroke-linejoin="round"/>
+        </g>
+        <!-- Checkmark -->
+        <polyline points="160,200 185,228 245,163" fill="none" stroke="#fff" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+        <!-- Text -->
+        <text x="200" y="378" text-anchor="middle" font-family="Arial,sans-serif" font-size="32" font-weight="800" fill="#fff" letter-spacing="6" opacity="0.95">AEGIS</text>
+      </svg>
+    </div>
+    <br><button onclick="downloadSVGasPNG('logoA','aegis-logo-A-400x400.png',400,400)">Download Option A</button>
+  </div>
+
+  <div>
+    <h2>Option B: White Shield on Dark Teal</h2>
+    <p class="spec">Dark teal background with bright white shield</p>
+    <div class="preview">
+      <svg id="logoB" xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 400 400">
+        <defs>
+          <linearGradient id="bgB" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#0a3d35"/><stop offset="100%" style="stop-color:#062b25"/></linearGradient>
+          <filter id="glowB"><feDropShadow dx="0" dy="0" stdDeviation="10" flood-color="#00d4aa" flood-opacity="0.6"/></filter>
+        </defs>
+        <rect width="400" height="400" rx="80" fill="url(#bgB)"/>
+        <!-- Glow circle -->
+        <circle cx="200" cy="190" r="120" fill="rgba(0,212,170,0.08)"/>
+        <!-- Shield -->
+        <g filter="url(#glowB)">
+          <path d="M200 60 L300 110 L300 200 C300 265 255 310 200 335 C145 310 100 265 100 200 L100 110 Z" fill="none" stroke="#00d4aa" stroke-width="5" stroke-linejoin="round"/>
+        </g>
+        <path d="M200 75 L288 120 L288 200 C288 258 248 298 200 322 C152 298 112 258 112 200 L112 120 Z" fill="rgba(0,212,170,0.08)"/>
+        <!-- Checkmark -->
+        <polyline points="160,200 185,228 245,163" fill="none" stroke="#00d4aa" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+        <!-- Text -->
+        <text x="200" y="378" text-anchor="middle" font-family="Arial,sans-serif" font-size="32" font-weight="800" fill="#00d4aa" letter-spacing="6">AEGIS</text>
+      </svg>
+    </div>
+    <br><button onclick="downloadSVGasPNG('logoB','aegis-logo-B-400x400.png',400,400)">Download Option B</button>
+  </div>
+
+  <div>
+    <h2>Option C: Bold Gradient Shield</h2>
+    <p class="spec">Black bg + bright teal-to-green gradient shield — maximum contrast</p>
+    <div class="preview">
+      <svg id="logoC" xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 400 400">
+        <defs>
+          <linearGradient id="shieldC" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#00ffcc"/><stop offset="100%" style="stop-color:#00d4aa"/></linearGradient>
+          <filter id="glowC"><feDropShadow dx="0" dy="0" stdDeviation="15" flood-color="#00d4aa" flood-opacity="0.5"/></filter>
+        </defs>
+        <rect width="400" height="400" rx="80" fill="#111"/>
+        <!-- Outer ring -->
+        <circle cx="200" cy="190" r="150" fill="none" stroke="#00d4aa" stroke-width="1" opacity="0.15"/>
+        <!-- Shield filled -->
+        <g filter="url(#glowC)">
+          <path d="M200 55 L305 108 L305 203 C305 270 258 318 200 343 C142 318 95 270 95 203 L95 108 Z" fill="url(#shieldC)" opacity="0.9"/>
+        </g>
+        <!-- Checkmark (dark) -->
+        <polyline points="158,200 186,232 248,160" fill="none" stroke="#111" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+        <!-- Text -->
+        <text x="200" y="383" text-anchor="middle" font-family="Arial,sans-serif" font-size="30" font-weight="800" fill="#00d4aa" letter-spacing="6">AEGIS</text>
+      </svg>
+    </div>
+    <br><button onclick="downloadSVGasPNG('logoC','aegis-logo-C-400x400.png',400,400)">Download Option C</button>
+  </div>
+</div>
+
+<hr>
+
+<h2>Banner (1500x500) — Updated bright version</h2>
+<p class="spec">Matches new logo style</p>
+<div class="preview" style="max-width:100%;overflow-x:auto;">
+  <svg id="bannerSvg" xmlns="http://www.w3.org/2000/svg" width="750" height="250" viewBox="0 0 1500 500">
+    <defs>
+      <linearGradient id="bannerBg2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#070710"/><stop offset="50%" style="stop-color:#0d0d1a"/><stop offset="100%" style="stop-color:#111128"/></linearGradient>
+      <linearGradient id="accentGrad2" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:#00ffcc"/><stop offset="100%" style="stop-color:#00d4aa"/></linearGradient>
+      <linearGradient id="shieldBanner" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#00ffcc"/><stop offset="100%" style="stop-color:#00d4aa"/></linearGradient>
+      <filter id="bannerGlow2"><feDropShadow dx="0" dy="0" stdDeviation="15" flood-color="#00d4aa" flood-opacity="0.5"/></filter>
+      <pattern id="grid2" width="60" height="60" patternUnits="userSpaceOnUse"><path d="M 60 0 L 0 0 0 60" fill="none" stroke="#00d4aa" stroke-width="0.3" opacity="0.06"/></pattern>
+    </defs>
+    <rect width="1500" height="500" fill="url(#bannerBg2)"/>
+    <rect width="1500" height="500" fill="url(#grid2)"/>
+    <!-- Top accent -->
+    <rect x="0" y="0" width="1500" height="3" fill="url(#accentGrad2)"/>
+    <!-- Shield icon (filled, bright) -->
+    <g transform="translate(100, 110)" filter="url(#bannerGlow2)">
+      <path d="M90 0 L170 40 L170 115 C170 165 135 195 90 210 C45 195 10 165 10 115 L10 40 Z" fill="url(#shieldBanner)" opacity="0.9"/>
+      <polyline points="55,115 78,140 130,85" fill="none" stroke="#111" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+    <!-- Text -->
+    <text x="370" y="195" font-family="Arial,sans-serif" font-size="64" font-weight="800" fill="#fff" letter-spacing="3">Aegis OmniGuard</text>
+    <text x="370" y="248" font-family="Arial,sans-serif" font-size="23" font-weight="400" fill="#00d4aa" letter-spacing="6" opacity="0.9">AI-ERA DATA SOVEREIGNTY GUARDIAN</text>
+    <rect x="370" y="268" width="120" height="2" rx="1" fill="#00d4aa" opacity="0.6"/>
+    <!-- Tags -->
+    <g font-family="Consolas,monospace" font-size="15" letter-spacing="1">
+      <text x="375" y="308" fill="#00d4aa">DLP Shield</text><circle cx="478" cy="304" r="2" fill="#444"/>
+      <text x="494" y="308" fill="#00d4aa">Web3 Sentinel</text><circle cx="630" cy="304" r="2" fill="#444"/>
+      <text x="646" y="308" fill="#00d4aa">100% Local</text><circle cx="762" cy="304" r="2" fill="#444"/>
+      <text x="778" y="308" fill="#00d4aa">Open Source</text>
+    </g>
+    <!-- Right code -->
+    <g transform="translate(1100, 130)" font-family="Consolas,monospace" font-size="13" opacity="0.3">
+      <text x="0" y="0" fill="#00d4aa">// scanning input...</text>
+      <text x="0" y="24" fill="#ff6b6b">sk-proj-****REDACTED</text>
+      <text x="0" y="48" fill="#00d4aa">// Luhn checksum: PASS</text>
+      <text x="0" y="72" fill="#ff6b6b">4111 **** **** 1111</text>
+      <text x="0" y="96" fill="#00d4aa">// BIP-39 match: 12/12</text>
+      <text x="0" y="120" fill="#ffd93d">BLOCKED: mnemonic</text>
+      <text x="0" y="144" fill="#00d4aa">// status: PROTECTED</text>
+    </g>
+    <!-- Footer -->
+    <g font-family="Arial,sans-serif" font-size="13" fill="#555" letter-spacing="1">
+      <text x="370" y="420">aegis-web4.com</text><circle cx="490" cy="416" r="2" fill="#333"/>
+      <text x="506" y="420">Chrome Web Store</text><circle cx="642" cy="416" r="2" fill="#333"/>
+      <text x="658" y="420">github.com/bidaiAI/aegis-omniguard</text>
+    </g>
+    <!-- Bottom accent -->
+    <rect x="0" y="497" width="1500" height="3" fill="url(#accentGrad2)"/>
+  </svg>
+</div>
+<br>
+<button onclick="downloadSVGasPNG('bannerSvg','aegis-banner-1500x500.png',1500,500)">Download Banner PNG</button>
+
+<script>
+function downloadSVGasPNG(svgId, filename, w, h) {
+  const svgEl = document.getElementById(svgId);
+  const clone = svgEl.cloneNode(true);
+  clone.setAttribute('width', w);
+  clone.setAttribute('height', h);
+  const svgData = new XMLSerializer().serializeToString(clone);
+  const svgBlob = new Blob([svgData], {type: 'image/svg+xml;charset=utf-8'});
+  const url = URL.createObjectURL(svgBlob);
+  const canvas = document.createElement('canvas');
+  canvas.width = w;
+  canvas.height = h;
+  const ctx = canvas.getContext('2d');
+  const img = new Image();
+  img.onload = function() {
+    ctx.drawImage(img, 0, 0, w, h);
+    URL.revokeObjectURL(url);
+    const link = document.createElement('a');
+    link.download = filename;
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+  };
+  img.src = url;
+}
+</script>
+
+</body>
+</html>

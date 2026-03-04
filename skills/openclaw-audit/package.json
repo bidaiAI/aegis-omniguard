@@ -1,0 +1,24 @@
+{
+  "name": "openclaw-audit",
+  "version": "1.0.0",
+  "description": "Security audit skill for OpenClaw AI agent framework installations. Detects malicious Skills, exposed WebSocket servers, missing authentication, and known CVEs.",
+  "main": "index.js",
+  "type": "module",
+  "keywords": [
+    "openclaw",
+    "security",
+    "audit",
+    "claude-code-skill",
+    "aegis-omniguard",
+    "malware-detection"
+  ],
+  "author": "Aegis OmniGuard",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "files": [
+    "index.js",
+    "README.md"
+  ]
+}

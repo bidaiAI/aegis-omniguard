@@ -1,0 +1,19 @@
+{
+  "name": "@aegis-omniguard/aegis-scan",
+  "version": "1.0.0",
+  "description": "Scan code projects for hardcoded secrets, API keys, private keys & crypto security issues",
+  "main": "index.js",
+  "type": "module",
+  "bin": {
+    "aegis-scan": "./index.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": ["security", "secrets", "api-keys", "crypto", "scanner", "dlp"],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bidaiAI/aegis-omniguard"
+  }
+}

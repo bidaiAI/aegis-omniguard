@@ -14,60 +14,74 @@ Aegis OmniGuard - AI Data Leak Shield
 ## 2. Summary / Short Description (max 132 chars)
 
 ```
-Stop leaking credit cards, API keys & crypto mnemonics to ChatGPT, Claude, Cursor. 100% local scanning, zero cloud, open source.
+Scans your input locally for credit cards, API keys & crypto mnemonics before sending to AI chatbots. 100% offline, open source.
 ```
 
 ## 3. Detailed Description (max 16,000 chars)
 
 ```
-Aegis OmniGuard - AI-Era Data Sovereignty Guardian
-AI 时代数据主权守护者
+Aegis OmniGuard - Local Input Scanner for AI Chatbots
 
-You're leaking secrets to AI tools right now. You just don't know it yet.
+Aegis OmniGuard is a browser-based input scanner that detects sensitive data patterns (credit card numbers, API keys, crypto mnemonics, etc.) in text you type or paste, and alerts you before submission.
 
-Every day, millions of people paste sensitive data into AI chatbots without thinking:
-- Credit card numbers into ChatGPT for "help with a payment issue"
-- API keys (sk-proj-..., AKIA...) into Claude while debugging code
-- Crypto wallet mnemonics into AI assistants for "backup help"
-- .env files with DATABASE_URL=... into Cursor or Copilot
-
-Your data leaves your browser and never comes back.
+COMMON SCENARIOS
+Developers and everyday users often accidentally include sensitive data when using AI chat tools:
+- A credit card number copied from a support ticket
+- An API key (sk-proj-..., AKIA...) left in a code snippet
+- A crypto wallet mnemonic phrase in a note
+- A .env file containing DATABASE_URL=...
 
 HOW IT WORKS
-Aegis OmniGuard sits between your keyboard and the cloud. It scans everything you type or paste into AI chat interfaces locally in your browser and blocks sensitive data before it's sent.
+1. The extension monitors input fields and contenteditable elements on web pages
+2. When you type, paste, or click a send button, the text is scanned locally using pattern matching and algorithmic verification
+3. If sensitive data is detected, the extension shows an in-page notification and masks the detected content
+4. No data ever leaves your browser — all scanning runs 100% offline
 
-WHAT IT DETECTS
-- Credit Cards: Regex + Luhn algorithm verification (random 16-digit numbers pass through)
-- Crypto Mnemonics: BIP-39 wordlist matching (2048 words, normal sentences pass through)
-- Private Keys: Hex pattern + Shannon entropy analysis
-- OpenAI Keys: sk-proj-... / sk-... patterns
-- Anthropic Keys: sk-ant-... patterns
-- AWS Keys: AKIA... patterns
-- GitHub Tokens: ghp_... / gho_... patterns
-- Google AI Keys: AIza... patterns
+HOW TO TEST (try it yourself)
+1. Install the extension and ensure the protection toggle is ON (click the extension icon to check)
+2. Open any AI chatbot website (e.g., chatgpt.com or claude.ai)
+3. Paste the following test credit card number into the chat input: 4111 1111 1111 1111
+4. Press Enter or click the Send button
+5. You will see a shield notification appear and the number will be masked with asterisks
+6. Click the extension icon → Logs tab to see the interception record
+
+DETECTION METHODS
+- Credit Cards: Regex pre-filter + Luhn checksum verification (random 16-digit numbers are not flagged)
+- Crypto Mnemonics: BIP-39 wordlist matching against the standard 2048-word list (12 or 24 consecutive words required)
+- Private Keys: Hexadecimal pattern matching + Shannon entropy analysis
+- API Keys: Pattern matching for known formats — OpenAI (sk-proj-...), Anthropic (sk-ant-...), AWS (AKIA...), GitHub (ghp_.../gho_...), Google AI (AIza...)
 - .env Secrets: KEY=VALUE format detection
-- Chinese ID Cards: 18-digit with checksum validation
-- Phone Numbers & Emails
+- PII: Chinese ID cards (18-digit with checksum), phone numbers, email addresses
 
 KEY FEATURES
-- Two-Pass Detection: Fast regex pre-filter, then algorithmic verification to eliminate false positives
-- React/Vue State Sync: Works with modern AI chat UIs using contenteditable, not just textarea
-- Shadow DOM Isolation: Injected UI has zero CSS conflicts with websites
-- Submit Button Interception: Catches send buttons across AI platforms
-- Protection Levels: Low / Medium / High confidence thresholds
-- Whitelist: Add trusted domains where scanning is disabled
-- Intercept Logs: Review what was blocked and when
+- Two-Pass Detection: Fast regex pre-filter followed by algorithmic verification to reduce false positives
+- Modern UI Compatibility: Works with contenteditable elements used by ChatGPT, Claude, and similar chat interfaces
+- Shadow DOM Notification: In-page alerts are isolated via Shadow DOM to avoid CSS conflicts
+- Three Protection Levels: Low (high-confidence only) / Medium (recommended) / High (aggressive)
+- Domain Whitelist: Disable scanning on trusted domains you specify
+- Intercept Logs: View a history of detected and masked items
 
-PRIVACY FIRST
-- All scanning happens 100% locally in your browser
-- Zero data sent to any server. Ever.
-- No telemetry, no analytics, no tracking
-- 100% open source - audit every line yourself
-- MIT License
+PRIVACY
+- All scanning runs 100% locally in your browser
+- Zero network requests for scanning — no data is sent to any server
+- No telemetry, analytics, or tracking of any kind
+- Open source under MIT License — inspect every line of code
+
+PERMISSIONS EXPLAINED
+- "storage": Saves your settings and intercept logs locally
+- "activeTab": Allows the content script to scan the current page
+- "<all_urls>" in content_scripts: Required because AI chatbots are hosted on many different domains; restricting to specific domains would leave users unprotected on new or lesser-known AI services
+
+NEW IN v0.2.0
+- Web3 Transaction Guard: Analyzes wallet transactions (MetaMask, etc.) before you sign, showing risk breakdown
+- Multi-Chain Detection: Bitcoin, Ethereum, Solana, Tron private key and address detection
+- BYOK AI Analysis: Optionally use your own OpenAI/Anthropic/DeepSeek API key for deep transaction risk analysis (off by default, no data sent unless you enable it)
+- Bilingual Interface: Full English and Chinese (中文) language support
+- Enhanced Detection: Improved false-positive reduction and wider API key format coverage
 
 OPEN SOURCE
-GitHub: https://github.com/anthropic-user/aegis-omniguard
-
+GitHub: https://github.com/bidaiAI/aegis-omniguard
+Website: https://aegis-web4.com
 Twitter/X: @bidaoofficial
 ```
 
@@ -88,7 +102,7 @@ English (United States)
 ## 6. Website (optional)
 
 ```
-https://github.com/anthropic-user/aegis-omniguard
+https://github.com/bidaiAI/aegis-omniguard
 ```
 
 ## 7. Privacy Policy
@@ -137,6 +151,48 @@ Suggested screenshots to create:
 
 ---
 
+## 10. Reviewer Testing Instructions (paste into "Notes to reviewer" field)
+
+```
+HOW TO VERIFY THE EXTENSION'S FUNCTIONALITY:
+
+1. Install the extension. Click the extension icon in the toolbar — ensure the "Protection" toggle is ON (green).
+
+2. Open https://chatgpt.com (or https://claude.ai) in a new tab.
+
+3. TEST 1 — Credit Card Detection:
+   Paste this test Visa number into the chat input box: 4111 1111 1111 1111
+   Press Enter or click the Send button.
+   EXPECTED: A shield notification appears in the top-right corner saying "Aegis: Data Leak Blocked". The credit card number is replaced with asterisks (e.g., **** **** **** 1111).
+
+4. TEST 2 — API Key Detection:
+   Paste this fake OpenAI key into the chat input: sk-proj-abc123def456ghi789jkl012mno345pqr678stu901vwx234
+   Press Enter.
+   EXPECTED: The key is masked and a notification appears.
+
+5. TEST 3 — Normal text passes through:
+   Type "Hello, how are you today?" and press Enter.
+   EXPECTED: No blocking, no notification. Normal text is sent normally.
+
+6. Click the extension icon → "Logs" tab to see the interception history from tests 1 and 2.
+
+7. TEST 4 — Web3 Transaction Guard (if MetaMask installed):
+   Open any dApp (e.g., app.uniswap.org), initiate a token swap.
+   EXPECTED: Aegis AlertPanel appears showing transaction risk analysis before signing.
+
+8. TEST 5 — Language Switch:
+   Click extension icon → Settings → Language → 中文
+   EXPECTED: Interface switches to Chinese.
+
+NOTES:
+- All detection happens locally in the browser. No network requests are made for scanning.
+- The BYOK AI feature is OFF by default. Only sends transaction metadata (not personal data) to user's own LLM provider if manually enabled.
+- The extension needs "storage" (for settings) and "activeTab" permissions.
+- "<all_urls>" in content_scripts is required because AI chat tools exist on many different domains.
+```
+
+---
+
 ## Upload Checklist
 
 - [ ] Developer account registered ($5 one-time fee)
@@ -146,6 +202,7 @@ Suggested screenshots to create:
 - [ ] Store listing text filled in
 - [ ] Category selected
 - [ ] Single purpose description provided
+- [ ] Reviewer testing instructions filled in "Notes to reviewer" field
 
 ---
 

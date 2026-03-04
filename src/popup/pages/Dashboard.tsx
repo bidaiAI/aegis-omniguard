@@ -104,6 +104,18 @@ export default function Dashboard({ settings, onUpdate, onNavigate }: Props) {
             enabled={settings.web3SentinelEnabled}
             onChange={(v) => onUpdate({ web3SentinelEnabled: v })}
           />
+          <ModuleToggle
+            label={t('dashboard.module.ai_scanner')}
+            desc={t('dashboard.module.ai_scanner.desc')}
+            enabled={settings.aiOutputScannerEnabled}
+            onChange={(v) => onUpdate({ aiOutputScannerEnabled: v })}
+          />
+          <ModuleToggle
+            label={t('dashboard.module.clipboard')}
+            desc={t('dashboard.module.clipboard.desc')}
+            enabled={settings.clipboardGuardEnabled}
+            onChange={(v) => onUpdate({ clipboardGuardEnabled: v })}
+          />
         </div>
       </div>
 

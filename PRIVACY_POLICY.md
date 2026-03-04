@@ -36,7 +36,7 @@ The optional BYOK (Bring Your Own Key) LLM analysis feature, if manually enabled
 
 ## Open Source
 
-Aegis OmniGuard is fully open source under the MIT License. You can audit every line of code at: https://github.com/anthropic-user/aegis-omniguard
+Aegis OmniGuard is fully open source under the MIT License. You can audit every line of code at: https://github.com/bidaiAI/aegis-omniguard
 
 ## Contact
 

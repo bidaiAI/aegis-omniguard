@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { MSG } from '../../shared/message_types';
-import type { InterceptLogEntry, SensitiveDataType } from '../../shared/types';
+import type { InterceptLogEntry, InterceptDetectionType } from '../../shared/types';
 import { useLocale } from '../i18n';
 
-const TYPE_ICONS: Record<SensitiveDataType, string> = {
+const TYPE_ICONS: Record<InterceptDetectionType, string> = {
   credit_card: '\u{1F4B3}',
   mnemonic: '\u{1F511}',
   private_key: '\u{1F512}',
@@ -14,6 +14,17 @@ const TYPE_ICONS: Record<SensitiveDataType, string> = {
   pii_id_card: '\u{1FAAA}',
   pii_phone: '\u{1F4F1}',
   pii_email: '\u{1F4E7}',
+  // AI Output Scanner types
+  suspicious_url: '\u{1F517}',
+  unverified_crypto_address: '\u{1F4B0}',
+  suspicious_code_wallet: '\u{1F4BB}',
+  suspicious_code_approval: '\u{26A0}',
+  suspicious_code_selfdestruct: '\u{1F4A3}',
+  suspicious_code_obfuscated: '\u{1F576}',
+  prompt_injection_indicator: '\u{1F6A8}',
+  // Clipboard Guard types
+  clipboard_hijack: '\u{1F4CB}',
+  suspicious_paste: '\u{1F4CB}',
 };
 
 interface Props {
