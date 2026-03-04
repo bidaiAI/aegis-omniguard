@@ -149,6 +149,18 @@ nav .nav-inner{max-width:var(--max-w);margin:0 auto;padding:0 24px;display:flex;
 .screenshot-card img{width:100%;display:block}
 .screenshot-card .caption{padding:16px 20px;font-size:14px;color:var(--text-muted)}
 
+/* ===== SKILLS ===== */
+.skills-section{background:var(--bg-primary)}
+.skills-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(420px,1fr));gap:28px;margin-top:48px}
+.skill-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:36px;transition:all .3s}
+.skill-card:hover{border-color:rgba(0,212,170,0.3);transform:translateY(-4px)}
+.skill-card h3{font-size:20px;margin-bottom:8px;display:flex;align-items:center;gap:10px}
+.skill-card .skill-desc{color:var(--text-muted);font-size:15px;margin-bottom:16px;line-height:1.7}
+.skill-card .skill-cmd{background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px 18px;font-family:var(--font-mono);font-size:13px;color:var(--accent);overflow-x:auto;white-space:pre;line-height:1.6}
+.skill-card .skill-badges{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.skill-card .skill-badge{background:var(--accent-dim);color:var(--accent);font-size:12px;font-weight:600;padding:3px 10px;border-radius:20px}
+@media(max-width:480px){.skills-grid{grid-template-columns:1fr}}
+
 /* ===== ROADMAP ===== */
 .roadmap{background:var(--bg-secondary);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
 .timeline{max-width:700px;margin:48px auto 0;position:relative;padding-left:40px}
@@ -226,6 +238,7 @@ footer{border-top:1px solid var(--border);padding:48px 0 32px}
       <li><a href="#how-it-works">How It Works</a></li>
       <li><a href="#detection">Detection</a></li>
       <li><a href="#roadmap">Roadmap</a></li>
+      <li><a href="#skills">Skills</a></li>
       <li><a href="#docs">Docs</a></li>
       <li><a href="https://github.com/bidaiAI/aegis-omniguard" target="_blank">GitHub</a></li>
       <li><a href="https://chromewebstore.google.com/detail/aegis-omniguard/fcgceeldnoifbaffonoaicbbcncfkjgg" target="_blank" class="nav-cta">Install Free</a></li>
@@ -237,7 +250,7 @@ footer{border-top:1px solid var(--border);padding:48px 0 32px}
 <section class="hero" id="hero">
   <div class="container">
     <h1>Your Last Line of Defense<br>Before <span class="accent">AI Gets Your Secrets</span></h1>
-    <p>Aegis OmniGuard scans your input locally for credit cards, API keys &amp; crypto mnemonics before sending to AI chatbots. 100% offline. Zero cloud. Open source.</p>
+    <p>Aegis OmniGuard protects both directions &mdash; blocks secrets from leaking TO AI, and scans AI responses coming BACK to you. Plus clipboard hijack detection. 100% offline. Open source.</p>
     <div class="hero-buttons">
       <a href="https://chromewebstore.google.com/detail/aegis-omniguard/fcgceeldnoifbaffonoaicbbcncfkjgg" target="_blank" class="btn-primary">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="4" fill="currentColor"/></svg>
@@ -296,7 +309,8 @@ footer{border-top:1px solid var(--border);padding:48px 0 32px}
     <div class="stats-grid" style="margin-top:40px">
       <div class="stat-card reveal"><div class="stat-number">23M+</div><div class="stat-label">Secrets leaked to GitHub repos in 2024</div></div>
       <div class="stat-card reveal"><div class="stat-number warning">900K+</div><div class="stat-label">ChatGPT conversations stolen by malicious extensions</div></div>
-      <div class="stat-card reveal"><div class="stat-number" style="color:var(--info)">32%</div><div class="stat-label">Enterprise data incidents involve Shadow AI usage</div></div>
+      <div class="stat-card reveal"><div class="stat-number" style="color:var(--info)">800+</div><div class="stat-label">Malicious AI Agent plugins detected in OpenClaw ClawHub (20% of registry)</div></div>
+      <div class="stat-card reveal"><div class="stat-number">0</div><div class="stat-label">Tools that scan what AI sends BACK to you &mdash; until Aegis v0.3</div></div>
     </div>
     <div class="code-demo reveal">
       <div class="line comment">// Pasting into ChatGPT...</div>
@@ -312,7 +326,7 @@ footer{border-top:1px solid var(--border);padding:48px 0 32px}
   <div class="container">
     <div class="section-label reveal">Features</div>
     <h2 class="section-title reveal">Complete Protection for the AI Era</h2>
-    <p class="section-desc reveal">Two shields. One extension. Zero data leaves your browser.</p>
+    <p class="section-desc reveal">Bidirectional defense &mdash; protect what you send TO AI, and what AI sends BACK to you.</p>
     <div class="features-grid">
       <div class="feature-card reveal">
         <div class="feature-icon">&#x1F6E1;</div>
@@ -349,6 +363,24 @@ footer{border-top:1px solid var(--border);padding:48px 0 32px}
         <h3>Zero CSS Conflicts</h3>
         <p>All in-page UI (toast notifications, alert panels) injected via Shadow DOM with mode:closed. Complete style isolation from any website's CSS. Works everywhere.</p>
         <span class="feature-tag">Shadow DOM Isolation</span>
+      </div>
+      <div class="feature-card reveal" style="border-color:rgba(0,212,170,0.2)">
+        <div class="feature-icon" style="background:rgba(239,68,68,0.1)">&#x1F50D;</div>
+        <h3>AI Output Scanner</h3>
+        <p>Every security tool protects what you SEND to AI. Nobody protects what AI SENDS BACK. Aegis scans ChatGPT, Claude, and Gemini responses for phishing URLs, fake crypto addresses, backdoored code, and prompt injection attacks.</p>
+        <span class="feature-tag" style="background:rgba(239,68,68,0.1);color:var(--danger)">Phase 3 &mdash; NEW</span>
+      </div>
+      <div class="feature-card reveal" style="border-color:rgba(0,212,170,0.2)">
+        <div class="feature-icon" style="background:rgba(245,158,11,0.1)">&#x1F4CB;</div>
+        <h3>Clipboard Guard</h3>
+        <p>Malware like StilachiRAT and ClipBanker silently swap crypto addresses when you paste. No Chrome extension detects this &mdash; until now. Aegis monitors copy/paste and alerts you when addresses don't match.</p>
+        <span class="feature-tag" style="background:rgba(245,158,11,0.1);color:var(--warning)">Phase 3 &mdash; NEW</span>
+      </div>
+      <div class="feature-card reveal" style="border-color:rgba(0,212,170,0.2)">
+        <div class="feature-icon" style="background:rgba(129,140,248,0.1)">&#x1F6E0;</div>
+        <h3>Security Skills (CLI)</h3>
+        <p>Two standalone Node.js security scanners: <strong>openclaw-audit</strong> vets AI Agent plugins for malicious code &amp; CVEs. <strong>aegis-scan</strong> detects hardcoded API keys, crypto private keys, and secrets in your projects.</p>
+        <span class="feature-tag" style="background:rgba(129,140,248,0.1);color:var(--info)">Phase 3 &mdash; NEW</span>
       </div>
     </div>
   </div>
@@ -427,8 +459,10 @@ footer{border-top:1px solid var(--border);padding:48px 0 32px}
           <span class="arch-mod">provider_proxy.ts</span>
           <span class="arch-mod">injector.ts</span>
           <span class="arch-mod">bridge.ts</span>
+          <span class="arch-mod" style="border-color:rgba(239,68,68,0.3);color:#ef4444">ai_output_scanner.ts</span>
+          <span class="arch-mod" style="border-color:rgba(245,158,11,0.3);color:#f59e0b">clipboard_guard.ts</span>
         </div>
-        <p style="color:var(--text-dim);font-size:13px;margin-top:12px">Content Scripts (Isolated World) + Main World ES6 Proxy for window.ethereum hijacking</p>
+        <p style="color:var(--text-dim);font-size:13px;margin-top:12px">Content Scripts (Isolated World) + Main World ES6 Proxy + AI Output MutationObserver + Clipboard API monitoring</p>
       </div>
       <div class="arch-arrow">&darr;</div>
       <div class="arch-layer reveal" data-layer="Layer 2 &mdash; Core Engines">
@@ -477,6 +511,49 @@ footer{border-top:1px solid var(--border);padding:48px 0 32px}
   </div>
 </section>
 
+<!-- ===== SECURITY SKILLS ===== -->
+<section class="skills-section" id="skills">
+  <div class="container">
+    <div style="text-align:center">
+      <div class="section-label reveal">Security Skills</div>
+      <h2 class="section-title reveal">CLI Tools for Developers</h2>
+      <p class="section-desc reveal" style="margin:0 auto">Zero-dependency Node.js scanners. Run anywhere. Integrate into CI/CD pipelines.</p>
+    </div>
+    <div class="skills-grid">
+      <div class="skill-card reveal">
+        <h3>&#x1F50D; openclaw-audit</h3>
+        <p class="skill-desc">Pre-installation security scanner for OpenClaw AI Agent framework. Detects malicious skills, CVE-2026-25253, insecure configs, and data exfiltration patterns &mdash; before they execute.</p>
+        <div class="skill-cmd">git clone https://github.com/bidaiAI/aegis-omniguard
+node skills/openclaw-audit/index.js ~/.openclaw</div>
+        <div class="skill-badges">
+          <span class="skill-badge">10 Threat Patterns</span>
+          <span class="skill-badge">CVE Detection</span>
+          <span class="skill-badge">Config Audit</span>
+          <span class="skill-badge">Zero Dependencies</span>
+        </div>
+      </div>
+      <div class="skill-card reveal">
+        <h3>&#x1F6E1; aegis-scan</h3>
+        <p class="skill-desc">Scan any code project for hardcoded API keys (OpenAI, Anthropic, AWS, GitHub, Stripe), crypto private keys, BIP-39 seed phrases, database URLs, JWT tokens, and high-entropy secrets.</p>
+        <div class="skill-cmd">git clone https://github.com/bidaiAI/aegis-omniguard
+node skills/aegis-scan/index.js /path/to/your/project</div>
+        <div class="skill-badges">
+          <span class="skill-badge">11 Secret Types</span>
+          <span class="skill-badge">CI/CD Ready</span>
+          <span class="skill-badge">Exit Codes</span>
+          <span class="skill-badge">Zero Dependencies</span>
+        </div>
+      </div>
+    </div>
+    <div style="text-align:center;margin-top:36px" class="reveal">
+      <a href="https://github.com/bidaiAI/aegis-omniguard/tree/main/skills" target="_blank" class="btn-secondary" style="display:inline-flex">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+        View All Skills on GitHub
+      </a>
+    </div>
+  </div>
+</section>
+
 <!-- ===== ROADMAP ===== -->
 <section class="roadmap" id="roadmap">
   <div class="container">
@@ -494,14 +571,14 @@ footer{border-top:1px solid var(--border);padding:48px 0 32px}
         <p>MetaMask transaction interception. Multi-chain key detection (BTC/ETH/SOL/TRON). BYOK LLM analysis. Chinese language support.</p>
       </div>
       <div class="tl-item reveal">
-        <div class="tl-dot next"></div>
-        <h4>Phase 3 &mdash; Advanced Threat Intelligence <span class="tl-tag progress">In Progress</span></h4>
-        <p>Phishing URL database. Cross-chain bridge monitoring. Enhanced false positive tuning. Community-contributed rules.</p>
+        <div class="tl-dot done"></div>
+        <h4>Phase 3 &mdash; Bidirectional Protection + Skills <span class="tl-tag done">Complete</span></h4>
+        <p>AI Output Scanner (phishing, fake addresses, backdoor code). Clipboard Guard (address hijack detection). openclaw-audit &amp; aegis-scan CLI security skills.</p>
       </div>
       <div class="tl-item reveal">
-        <div class="tl-dot"></div>
-        <h4>Phase 4 &mdash; Enterprise &amp; Team Features <span class="tl-tag planned">Planned</span></h4>
-        <p>Admin dashboard. Centralized policy management. Team deployment. Advanced rule packages.</p>
+        <div class="tl-dot next"></div>
+        <h4>Phase 4 &mdash; Threat Intelligence &amp; Enterprise <span class="tl-tag progress">In Progress</span></h4>
+        <p>Phishing URL database. Cross-chain bridge monitoring. Admin dashboard. Centralized policy management. Team deployment.</p>
       </div>
       <div class="tl-item reveal">
         <div class="tl-dot"></div>
@@ -591,7 +668,7 @@ footer{border-top:1px solid var(--border);padding:48px 0 32px}
           <svg width="28" height="28" viewBox="0 0 32 32" fill="none"><path d="M16 2L28 8V16C28 23.2 22.8 28.8 16 30C9.2 28.8 4 23.2 4 16V8L16 2Z" stroke="#00d4aa" stroke-width="2" fill="rgba(0,212,170,0.08)"/><polyline points="10,16 14,20 22,12" stroke="#00d4aa" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
           Aegis OmniGuard
         </div>
-        <p>AI-Era Data Sovereignty Guardian.<br>Protecting your sensitive data from accidental leakage to AI tools and dangerous Web3 signatures.</p>
+        <p>AI-Era Data Sovereignty Guardian.<br>Bidirectional protection: blocks secrets leaking to AI, scans AI responses for threats, and guards your clipboard from address hijacking.</p>
       </div>
       <div class="footer-col">
         <h4>Product</h4>
@@ -604,6 +681,7 @@ footer{border-top:1px solid var(--border);padding:48px 0 32px}
       <div class="footer-col">
         <h4>Developers</h4>
         <a href="https://github.com/bidaiAI/aegis-omniguard" target="_blank">GitHub Repository</a>
+        <a href="#skills">Security Skills (CLI)</a>
         <a href="#architecture">Architecture</a>
         <a href="https://github.com/bidaiAI/aegis-omniguard/blob/main/SECURITY.md" target="_blank">Security Policy</a>
         <a href="https://github.com/bidaiAI/aegis-omniguard/blob/main/LICENSE" target="_blank">MIT License</a>
