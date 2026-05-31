@@ -23,6 +23,20 @@
 
 ---
 
+## Open-source status and distribution proof
+
+Aegis OmniGuard is a public, MIT-licensed security project maintained by `bidaiAI`.
+
+- **Primary maintainer:** [`bidaiAI`](https://github.com/bidaiAI)
+- **Public repository:** <https://github.com/bidaiAI/aegis-omniguard>
+- **Chrome Web Store listing:** <https://chromewebstore.google.com/detail/aegis-omniguard/fcgceeldnoifbaffonoaicbbcncfkjgg>
+- **Chrome extension ID:** `fcgceeldnoifbaffonoaicbbcncfkjgg`
+- **Store availability proof:** the official Chrome Web Store URL returned `HTTP/2 200` on **2026-05-31**. See [`docs/CHROME_WEB_STORE_PROOF.md`](docs/CHROME_WEB_STORE_PROOF.md).
+
+This repository is maintained as an AI-era data-loss-prevention tool: it helps users avoid leaking API keys, private keys, seed phrases, credit cards, and other sensitive data into AI products and web apps.
+
+---
+
 ## Why You Need This — Right Now
 
 Think about the last time you pasted something into ChatGPT, Claude, or Cursor. Did you check for:
